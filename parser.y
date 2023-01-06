@@ -13,6 +13,7 @@ extern int yylex();
 
 %}
 
+
 %union {
 int intval;
 char* strval;
@@ -87,11 +88,10 @@ block : GLOBAL global END_GLOBAL
      ;
 
 /*global contine declaratiile de variabile, array-uri si constante---------------------------------------------------------------------------*/
-global : variabile ;
 
 /*aici putem avea o declaratie sau mai multe*/
-variabile : variabila ';'
-		| variabile variabila ';'
+global : variabila ';'
+		| global variabila ';'
 		;
 
 /*o declaratie(variabila) poate avea urmatoarele forme*/
@@ -103,6 +103,7 @@ variabila : DATA_TYPE IDENTIFIER  /*ex: int a;*/
            | DATA_TYPE IDENTIFIER '[' ']' {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
            | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']' ASSIGN '{' array_values '}'
            | DATA_TYPE IDENTIFIER '[' ']' ASSIGN '{' array_values '}'
+           ;
 
 
 
@@ -116,23 +117,23 @@ value : INTEGER_VALUE
 
 array_values : value
             | array_values ',' value
+            ;
 
 
 
 
 /*functions contine declaratiile si implementarea de functii-----------------------------------------------------------------------------------*/
-functions : routines ;
+functions : routines 
+          ;
 
-routines : routine ';'
-		| routines routine ';'
+routines : routine
+		| routines routine
 		;
-routine : ;
 
 
 
 
-
-
+routine :  DATA_TYPE IDENTIFIER '(' ')' ;
 types : ;
 main : ;
 

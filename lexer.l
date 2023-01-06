@@ -42,7 +42,7 @@
 ">"|">="|"<"|"<="|"=="|"!="                 {return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
 
 
-"{"|"}"|","|"("|")"|"!"|";"					{ return yytext[0]; } /*alte semne de punctuatie si paranteze*/
+"{"|"}"|","|"("|")"|"!"					{return yytext[0]; } /*alte semne de punctuatie si paranteze*/
 
 "true"|"false"                              {return BOOL_VALUE;} /*valori booleene (true si false)*/
 

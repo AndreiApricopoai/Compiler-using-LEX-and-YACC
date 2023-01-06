@@ -2,14 +2,19 @@ START:
 
 GLOBAL:
 
+
+
+
 int a;
+
+
 char b;
 int c = 20;
 bool d = true;
 string s = "alea";
 string ss;
 float f = 20.5;
-float f;
+float g;
 
 const int var = 20;
 const int some; //throws "const var without value" error
