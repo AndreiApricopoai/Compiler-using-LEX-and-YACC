@@ -2,8 +2,18 @@ START:
 
 GLOBAL:
 
-int a;
+//dataype identifier; 
+
+int a;  
 char b;
+string ss;
+
+//datatype identifier assign int
+//datatype identifier assign string
+//datatype identifier assign bool
+//datatype identifier assign float
+
+
 int c = 20;
 bool d = true;
 string s = "alea";
@@ -15,6 +25,8 @@ int my_arr[20];
 bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
+
+END_GLOBAL
 
 
 FUNCTIONS:
@@ -30,6 +42,7 @@ int func2(int p1, int p2){
     rez = EVAL(param1 + param2);
     return rez;
 }
+END_FUNCTIONS
 
 
 TYPES:
@@ -63,6 +76,8 @@ methods:
 Profesor{
     /*nimic aici*/
 }
+
+END_TYPES
 
 
 

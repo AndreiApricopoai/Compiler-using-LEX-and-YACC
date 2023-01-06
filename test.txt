@@ -1,0 +1,45 @@
+START:
+
+GLOBAL:
+
+int a;
+char b;
+int c = 20;
+bool d = true;
+string s = "alea";
+string ss;
+float f = 20.5;
+float f;
+
+const int var = 20;
+const int some; //throws "const var without value" error
+
+int my_arr[20];
+bool bs[100] = {true,false,true,true};
+float fsir[] = {1.2,2.5,3.0};
+int integers[] = {1,2,3,4,5};
+
+END_GLOBAL
+
+
+FUNCTIONS:
+
+END_FUNCTIONS
+
+
+TYPES:
+
+
+END_TYPES
+
+
+
+
+MAIN:
+
+
+
+END_MAIN
+
+
+END
