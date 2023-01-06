@@ -23,8 +23,11 @@ char* strval;
 
 %token START
 %token GLOBAL
+%token END_GLOBAL
 %token FUNCTIONS
+%token END_FUNCTIONS
 %token TYPES
+%token END_TYPES
 %token MEMBERS
 %token METHODS
 %token MAIN

@@ -14,8 +14,11 @@
 
 "START:"                                    {return START;}  /*token pentru inceputul programului*/
 "GLOBAL:"                                   {return GLOBAL;}  /*token care marcheaza inceputul blocului de declaratii globale*/
+"END_GLOBAL"                                {return END_GLOBAL;} /*token care marcheaza sfarsitul declaratiilor globale*/
 "FUNCTIONS:"                                {return FUNCTIONS;} /*token care marcheaza inceputul blocului de declaratii de functii*/
+"END_FUNCTIONS"                             {return END_FUNCTIONS;} /*token care marcheaza sfarsitul functiilor*/
 "TYPES:"                                    {return TYPES;}  /*token care marcheaza inceputul blocului de declaratii de tipuri custom*/
+"END_TYPES"                                 {return END_TYPES;} /*token care marcheaza sfarsitul claselor*/
 "members:"                                  {return MEMBERS;}  /*variabile din tipurile custom*/
 "methods:"                                  {return METHODS;}  /*metodele din tipurile custom*/
 "MAIN:"                                     {return MAIN;}  /*toke care marcheaza inceput main*/
