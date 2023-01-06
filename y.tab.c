@@ -105,10 +105,7 @@ extern int yylex();
 #  endif
 # endif
 
-/* Use api.header.include to #include this header
-   instead of duplicating it here.  */
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -210,7 +207,7 @@ union YYSTYPE
 int intval;
 char* strval;
 
-#line 214 "y.tab.c"
+#line 211 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -225,7 +222,7 @@ extern YYSTYPE yylval;
 int yyparse (void);
 
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+
 /* Symbol kind.  */
 enum yysymbol_kind_t
 {
@@ -1283,23 +1280,23 @@ yyreduce:
   case 2: /* program: START continut END  */
 #line 75 "parser.y"
                               {printf("Programul este corect sintactic!\n");}
-#line 1287 "y.tab.c"
+#line 1284 "y.tab.c"
     break;
 
   case 13: /* variabila: CONST DATA_TYPE IDENTIFIER  */
 #line 100 "parser.y"
                                         {/*thows error*/ yyerror("const without value asociated!");}
-#line 1293 "y.tab.c"
+#line 1290 "y.tab.c"
     break;
 
   case 16: /* variabila: DATA_TYPE IDENTIFIER '[' ']'  */
 #line 103 "parser.y"
                                           {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
-#line 1299 "y.tab.c"
+#line 1296 "y.tab.c"
     break;
 
 
-#line 1303 "y.tab.c"
+#line 1300 "y.tab.c"
 
       default: break;
     }
