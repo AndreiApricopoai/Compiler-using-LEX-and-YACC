@@ -7,7 +7,6 @@
 %option noyywrap
 %%
 
-
 "START:"                                    {return START;}  /*token pentru inceputul programului*/
 "GLOBAL:"                                   {return GLOBAL;}  /*token care marcheaza inceputul blocului de declaratii globale*/
 "END_GLOBAL"                                {return END_GLOBAL;} /*token care marcheaza sfarsitul declaratiilor globale*/
@@ -42,8 +41,6 @@
 ">"|">="|"<"|"<="|"=="|"!="                 {return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
 
 
-"{"|"}"|","|"("|")"|"!"					{return yytext[0]; } /*alte semne de punctuatie si paranteze*/
-
 "true"|"false"                              {return BOOL_VALUE;} /*valori booleene (true si false)*/
 
 [a-zA-Z]+                                   {return CUSTOM_TYPE;} /*valorile pe care le poate lua un nume de clasa*/
@@ -55,7 +52,7 @@
 [\x20-\x7E]                                 {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
 
 "/*"(.|\n)+"*/" ; /*comentariu C-style*/
-[\t ] ; /*aici ignoram spatiu si tab*/
+[\t] ; /*aici ignoram spatiu si tab*/
 \n                                          {yylineno++;}   /**/
 
 .                                           {return yytext[0];}  /* pentru '.' inseamna toate caracterele UNICODE*/

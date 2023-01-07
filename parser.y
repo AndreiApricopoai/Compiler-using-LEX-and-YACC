@@ -8,8 +8,10 @@
 extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
-extern void yyerror();
+extern int yylval;
+extern void yyerror();``
 extern int yylex();
+int yydebug = 1;
 
 %}
 
@@ -18,7 +20,6 @@ extern int yylex();
 int intval;
 char* strval;
 }
-
 
 %token START
 %token GLOBAL
@@ -61,7 +62,6 @@ char* strval;
 
 
 
-
 %left '+' '-'
 %left '*' '/'
 
@@ -73,51 +73,53 @@ char* strval;
 
 /*aici avem structura programului : in continut avem textul care se gaseste intre START si END*/
 program :  START continut END {printf("Programul este corect sintactic!\n");}
-     ;
+        ;
 
 /*continutul programului (continut) este format din 4 blocuri */
 continut : block
-		| continut block
-		;
+	    | continut block
+	    ;
 
 /*blocurile sunt GLOBAL, FUNCTIONS, TYPES, MAIN*/
 block : GLOBAL global END_GLOBAL
-     |FUNCTIONS functions END_FUNCTIONS
-     |TYPES types END_TYPES
-	|MAIN main END_MAIN
-     ;
+      | FUNCTIONS functions END_FUNCTIONS
+      | TYPES types END_TYPES
+	 | MAIN main END_MAIN
+      ; 
 
 /*global contine declaratiile de variabile, array-uri si constante---------------------------------------------------------------------------*/
+global : variabile 
+       ;
 
 /*aici putem avea o declaratie sau mai multe*/
-global : variabila ';'
-		| global variabila ';'
+variabile : variabila ';'
+		| variabile variabila ';'
 		;
 
 /*o declaratie(variabila) poate avea urmatoarele forme*/
 variabila : DATA_TYPE IDENTIFIER  /*ex: int a;*/
-           | DATA_TYPE IDENTIFIER ASSIGN value
-           | CONST DATA_TYPE IDENTIFIER {/*thows error*/ yyerror("const without value asociated!");}
-           | CONST DATA_TYPE IDENTIFIER ASSIGN value
-           | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']'
-           | DATA_TYPE IDENTIFIER '[' ']' {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
-           | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']' ASSIGN '{' array_values '}'
-           | DATA_TYPE IDENTIFIER '[' ']' ASSIGN '{' array_values '}'
-           ;
+          | DATA_TYPE IDENTIFIER ASSIGN value{;}
+          | CONST DATA_TYPE IDENTIFIER {/*thows error*/ yyerror("const without value asociated!");}
+          | CONST DATA_TYPE IDENTIFIER ASSIGN value
+          | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']'
+          | DATA_TYPE IDENTIFIER '[' ']' {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
+          | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']' ASSIGN '{' array_values '}'
+          | DATA_TYPE IDENTIFIER '[' ']' ASSIGN '{' array_values '}'
+          ;
 
 
 
 /*valorile pe care le poate lua o variabila*/
 value : INTEGER_VALUE
-     |BOOL_VALUE
-     |STRING_VALUE
-     |CHAR_VALUE
-     |FLOAT_VALUE
-     ;
+      | BOOL_VALUE
+      | STRING_VALUE
+      | CHAR_VALUE
+      | FLOAT_VALUE
+      ;
 
 array_values : value
-            | array_values ',' value
-            ;
+             | array_values ',' value
+             ;
 
 
 
@@ -127,13 +129,13 @@ functions : routines
           ;
 
 routines : routine
-		| routines routine
-		;
+	    | routines routine
+	    ;
 
 
 
 
-routine :  DATA_TYPE IDENTIFIER '(' ')' ;
+routine :  CUSTOM_TYPE IDENTIFIER '(' ')' ;
 types : ;
 main : ;
 

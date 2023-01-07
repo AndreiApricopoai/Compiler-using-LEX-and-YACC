@@ -2,12 +2,7 @@ START:
 
 GLOBAL:
 
-
-
-
 int a;
-
-
 char b;
 int c = 20;
 bool d = true;
