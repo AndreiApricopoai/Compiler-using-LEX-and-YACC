@@ -8,10 +8,8 @@
 extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
-extern int yylval;
-extern void yyerror();``
+extern void yyerror();
 extern int yylex();
-int yydebug = 1;
 
 %}
 
@@ -38,10 +36,8 @@ char* strval;
 %token CONST
 %token ACCES
 
-%token CUSTOM_TYPE
 %token IDENTIFIER
 %token INTEGER_VALUE
-%token ABSOLUTE_VALUE
 %token BOOL_VALUE
 %token FLOAT_VALUE
 %token STRING_VALUE
@@ -58,6 +54,14 @@ char* strval;
 %token ASSIGN
 %token ARITHMETIC_OPERATOR
 %token RELATIONAL_OPERATOR
+%token SEMICOLON
+%token COMMA
+%token LSB
+%token RSB
+%token LCB
+%token RCB
+%token RPB
+%token LPB
 
 
 
@@ -92,8 +96,8 @@ global : variabile
        ;
 
 /*aici putem avea o declaratie sau mai multe*/
-variabile : variabila ';'
-		| variabile variabila ';'
+variabile : variabila SEMICOLON
+		| variabile variabila SEMICOLON
 		;
 
 /*o declaratie(variabila) poate avea urmatoarele forme*/
@@ -101,10 +105,10 @@ variabila : DATA_TYPE IDENTIFIER  /*ex: int a;*/
           | DATA_TYPE IDENTIFIER ASSIGN value{;}
           | CONST DATA_TYPE IDENTIFIER {/*thows error*/ yyerror("const without value asociated!");}
           | CONST DATA_TYPE IDENTIFIER ASSIGN value
-          | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']'
-          | DATA_TYPE IDENTIFIER '[' ']' {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
-          | DATA_TYPE IDENTIFIER '[' ABSOLUTE_VALUE ']' ASSIGN '{' array_values '}'
-          | DATA_TYPE IDENTIFIER '[' ']' ASSIGN '{' array_values '}'
+          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB
+          | DATA_TYPE IDENTIFIER LSB RSB {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
+          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB
+          | DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB
           ;
 
 
@@ -118,24 +122,14 @@ value : INTEGER_VALUE
       ;
 
 array_values : value
-             | array_values ',' value
+             | array_values COMMA value
              ;
 
 
 
 
 /*functions contine declaratiile si implementarea de functii-----------------------------------------------------------------------------------*/
-functions : routines 
-          ;
-
-routines : routine
-	    | routines routine
-	    ;
-
-
-
-
-routine :  CUSTOM_TYPE IDENTIFIER '(' ')' ;
+functions : ;
 types : ;
 main : ;
 
@@ -151,7 +145,8 @@ printf("EROARE: %s LA LINIA : %d\n",s,yylineno);
 }
 
 int main(int argc, char** argv){
-
+extern int yydebug;
+yydebug = 1;
 yyin=fopen(argv[1],"r");
 yyparse();
 return 0;

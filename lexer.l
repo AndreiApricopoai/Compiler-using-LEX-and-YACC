@@ -5,6 +5,7 @@
 #include "y.tab.h"
 %}
 %option noyywrap
+
 %%
 
 "START:"                                    {return START;}  /*token pentru inceputul programului*/
@@ -43,16 +44,24 @@
 
 "true"|"false"                              {return BOOL_VALUE;} /*valori booleene (true si false)*/
 
-[a-zA-Z]+                                   {return CUSTOM_TYPE;} /*valorile pe care le poate lua un nume de clasa*/
-[a-zA-Z_][a-zA-Z0-9_]*                      {return IDENTIFIER;} /*nume de variabile si functii*/
-(0|([1-9][0-9]*))                           {return ABSOLUTE_VALUE;} /*valori int pozitive*/
+
+";"                                         {return SEMICOLON;}
+","                                         {return COMMA;}
+"["                                         {return LSB;}
+"]"                                         {return RSB;}
+"{"                                         {return LCB;}
+"}"                                         {return RCB;}
+")"                                         {return RPB;}
+"("                                         {return LPB;}
+
+[_a-zA-Z][_a-zA-Z0-9_]*                     {return IDENTIFIER;} /*nume de variabile si functii*/
 ([+-])?(0|([1-9][0-9]*))                    {return INTEGER_VALUE;} /*valori int*/
-"^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$"  {return FLOAT_VALUE;} /*valori float*/
+[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {return FLOAT_VALUE;} /*valori float*/
 \"([^\\"]|\\.)*\"                           {return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
-[\x20-\x7E]                                 {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
+[\x21-\x7E]                                 {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
 
 "/*"(.|\n)+"*/" ; /*comentariu C-style*/
-[\t] ; /*aici ignoram spatiu si tab*/
+[\t ] ; /*aici ignoram spatiu si tab*/
 \n                                          {yylineno++;}   /**/
 
 .                                           {return yytext[0];}  /* pentru '.' inseamna toate caracterele UNICODE*/

@@ -12,7 +12,6 @@ float f = 20.5;
 float g;
 
 const int var = 20;
-const int some; //throws "const var without value" error
 
 int my_arr[20];
 bool bs[100] = {true,false,true,true};
