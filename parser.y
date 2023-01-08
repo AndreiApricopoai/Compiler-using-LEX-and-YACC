@@ -44,17 +44,19 @@ char* strval;
 %token CHAR_VALUE
 
 %token EVAL
-%token PRINT
 %token TYPEOF
 %token IF
+%token ELSE
 %token FOR
 %token WHILE
 %token RETURN
+%token PRINT
 
 %token ASSIGN
 %token ARITHMETIC_OPERATOR
 %token RELATIONAL_OPERATOR
 %token SEMICOLON
+%token NOT
 %token COMMA
 %token LSB
 %token RSB
@@ -62,12 +64,15 @@ char* strval;
 %token RCB
 %token RPB
 %token LPB
+%token BOOLEAN_OPERATOR
+%token TYPE
 
 
+%left BOOLEAN_OPERATOR
+%left RELATIONAL_OPERATOR
+%left ARITHMETIC_OPERATOR
+%left NOT
 
-
-%left '+' '-'
-%left '*' '/'
 
 %start program
 
@@ -92,8 +97,9 @@ block : GLOBAL global END_GLOBAL
       ; 
 
 /*global contine declaratiile de variabile, array-uri si constante---------------------------------------------------------------------------*/
-global : variabile 
+global : variabile
        ;
+       
 
 /*aici putem avea o declaratie sau mai multe*/
 variabile : variabila SEMICOLON
@@ -112,7 +118,6 @@ variabila : DATA_TYPE IDENTIFIER  /*ex: int a;*/
           ;
 
 
-
 /*valorile pe care le poate lua o variabila*/
 value : INTEGER_VALUE
       | BOOL_VALUE
@@ -120,6 +125,7 @@ value : INTEGER_VALUE
       | CHAR_VALUE
       | FLOAT_VALUE
       ;
+      
 
 array_values : value
              | array_values COMMA value
@@ -129,9 +135,124 @@ array_values : value
 
 
 /*functions contine declaratiile si implementarea de functii-----------------------------------------------------------------------------------*/
-functions : ;
-types : ;
-main : ;
+functions : funcs_decl
+          ;
+
+funcs_decl : func_decl
+      | funcs_decl func_decl
+      ;
+
+func_decl : DATA_TYPE IDENTIFIER LPB func_params RPB  LCB statements RETURN return_format SEMICOLON RCB
+          ;
+
+func_params : func_param 
+       | func_params COMMA func_param 
+       ;
+
+func_param : DATA_TYPE IDENTIFIER
+      | CONST DATA_TYPE IDENTIFIER
+      | DATA_TYPE IDENTIFIER LSB RPB
+      ;
+      
+
+
+statements : statement 
+           | statements statement
+           ;
+
+/*if while for, print(), eval(), a = expression*/
+statement : assignment SEMICOLON
+          | variabila  SEMICOLON
+          | func_call SEMICOLON
+          | IDENTIFIER ACCES func_call SEMICOLON
+          | control_statement
+          | TYPEOF LPB /*TODO*/ RPB SEMICOLON 
+          | EVAL LPB /*TODO*/ RPB SEMICOLON
+          | PRINT LPB /*TODO*/ RPB SEMICOLON
+          ;
+                    
+
+return_format : IDENTIFIER  
+              | value 
+              | LPB expression RPB 
+              ;
+              
+
+assignment : IDENTIFIER ASSIGN expression 
+           | IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN expression
+           | IDENTIFIER ACCES IDENTIFIER ASSIGN expression
+           ;
+
+
+expression : value
+           | IDENTIFIER
+           | IDENTIFIER LSB INTEGER_VALUE RSB
+           | IDENTIFIER ACCES IDENTIFIER
+           | IDENTIFIER ACCES func_call
+           | func_call
+           | LPB expression RPB
+           | expression ARITHMETIC_OPERATOR expression
+           ;
+
+
+func_call : IDENTIFIER LPB func_arguments RPB 
+          | IDENTIFIER LPB RPB
+          ;
+
+
+control_statement : IF LPB conditions RPB  LCB statements  RCB 
+                  | IF LPB conditions RPB  LCB statements  RCB ELSE LCB statements RCB
+                  | WHILE LPB conditions RPB  LCB statements  RCB
+                  | FOR LPB assignment SEMICOLON conditions SEMICOLON assignment RPB  LCB statements  RCB
+                  ;
+
+
+
+conditions : condition
+           | NOT LPB conditions RPB
+           | LPB conditions RPB
+           | conditions BOOLEAN_OPERATOR conditions
+           ;
+           
+
+
+
+condition : expression RELATIONAL_OPERATOR expression 
+          ;
+
+
+
+func_arguments : expression 
+               | func_arguments COMMA expression
+               ;
+
+
+
+
+
+types : type
+      | types type
+      ;
+
+type : IDENTIFIER LCB innertype RCB 
+     ;
+
+innertype : MEMBERS variabile METHODS funcs_decl
+          | MEMBERS variabile
+          | METHODS funcs_decl
+          ;
+
+
+
+
+
+main : main_statement 
+     | main main_statement
+     ;
+
+main_statement : statement
+               | TYPE IDENTIFIER IDENTIFIER SEMICOLON
+               ;
 
 %%
 
@@ -145,8 +266,10 @@ printf("EROARE: %s LA LINIA : %d\n",s,yylineno);
 }
 
 int main(int argc, char** argv){
+     
 extern int yydebug;
 yydebug = 1;
+
 yyin=fopen(argv[1],"r");
 yyparse();
 return 0;

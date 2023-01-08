@@ -23,10 +23,97 @@ END_GLOBAL
 
 FUNCTIONS:
 
+
+int func1(int param1, int param2, char param3, const int param4){
+
+    EVAL();
+    int a;
+    return rez;
+}
+
+
+int func2(int p1, int p2){
+
+    EVAL();
+    
+
+    PRINT();
+
+
+    if(param1 > param2){
+    a = 2;
+
+    }
+
+    while(c != 0){
+
+    c = c - 1;
+    }
+
+    return rez;
+}
+
+
+
+
 END_FUNCTIONS
 
 
 TYPES:
+
+Student{
+
+members:
+
+    int mem1;
+    int mem2 = 10;
+
+methods:
+
+    int met1(int param1, int param2){
+
+        if(param1 > param2){
+            a = 2;
+        }
+
+        EVAL();
+        int a;
+        return rez;
+    }
+
+    bool met2(int param3, int param4){
+        bool val; 
+        int a ;
+        return val;
+    }
+
+}
+
+
+Profesor{
+members:
+
+    int mem1;
+    int mem2 = 10;
+
+methods:
+
+    int met1(int param1, int param2){
+
+        if(param1 > param2){
+            a = 2;
+        }
+
+        EVAL();
+        return rez;
+    }
+
+    bool met2(int param3, int param4){
+        bool val; 
+        int a;
+        return val;
+    }
+    }
 
 
 END_TYPES
@@ -35,6 +122,33 @@ END_TYPES
 
 
 MAIN:
+
+TYPE Student student;
+TYPE Profesor prof; 
+
+student-->mem1 = 12;
+student-->met1(a,c);
+
+TypeOf();
+TypeOf();
+
+EVAL();
+
+while(c != 0){
+
+    /*stmt*/
+    c = c - 1;
+}
+
+for(c = 1 ; c<10 ; c = c + 1){
+    int n = 10;
+}
+
+if(c > 20){
+    Print();
+    A = 0;
+}
+
 
 
 
