@@ -11,7 +11,7 @@ char b;
 bool r;
 bool d = true;
 bool e = false;
-
+bool k;
 
 string ss;
 
