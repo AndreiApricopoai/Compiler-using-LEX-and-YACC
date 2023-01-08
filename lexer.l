@@ -38,7 +38,7 @@
 "while"                                     {return WHILE;} /*keyword while*/
 "return"                                    {return RETURN;} /*keyword return din functii*/
 
-"||"|"&&"                                   {return BOOLEAN_OPERATOR;}
+"&&"|"||"                                   {return BOOLEAN_OPERATOR;}
 "="                                         {return ASSIGN;}   /*operator de atribuire*/
 "+"|"-"|"*"|"/"|"%"                         {return ARITHMETIC_OPERATOR;} /*operatori aritmetici +,-, etc*/
 ">"|">="|"<"|"<="|"=="|"!="                 {return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
@@ -56,8 +56,8 @@
 "}"                                         {return RCB;}
 ")"                                         {return RPB;}
 "("                                         {return LPB;}
-"\""                                          {return SINGLE_QUOTE;}
-"\'"                                          {return SINGLE_QUOTE;}
+"\""                                        {return DOUBLE_QUOTE;}
+"\'"                                        {return SINGLE_QUOTE;}
 
 
 [_a-zA-Z][_a-zA-Z0-9_]*                     {return IDENTIFIER;} /*nume de variabile si functii*/
