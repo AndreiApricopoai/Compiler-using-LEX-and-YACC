@@ -56,14 +56,16 @@
 "}"                                         {return RCB;}
 ")"                                         {return RPB;}
 "("                                         {return LPB;}
+"\""                                          {return SINGLE_QUOTE;}
+"\'"                                          {return SINGLE_QUOTE;}
+
 
 [_a-zA-Z][_a-zA-Z0-9_]*                     {return IDENTIFIER;} /*nume de variabile si functii*/
 ([+-])?(0|([1-9][0-9]*))                    {return INTEGER_VALUE;} /*valori int*/
 [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {return FLOAT_VALUE;} /*valori float*/
-\"([^\\"]|\\.)*\"                           {return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
 [\x21-\x7E]                                 {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
+([-~])*                                     {return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
 
-"/*"(.|\n)+"*/" ; /*comentariu C-style*/
 [\t ] ; /*aici ignoram spatiu si tab*/
 \n                                          {yylineno++;}   /**/
 

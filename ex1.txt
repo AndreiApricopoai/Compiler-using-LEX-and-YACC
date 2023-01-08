@@ -16,7 +16,6 @@ string ss;
 
 int c = 20;
 bool d = true;
-string s = "alea";
 float f = 20.5;
 
 const int var = 20;
@@ -63,12 +62,11 @@ methods:
             /*stmt*/
         }
 
-        rez = EVAL(param1 + param2);
+        
         return rez;
     }
 
     bool met2(int param3, int param4){
-        bool val = EVAL(param3 > param4);
         return val;
     }
 

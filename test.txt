@@ -3,14 +3,21 @@ START:
 GLOBAL:
 
 int a;
+int x = 10;
+
 char b;
-int c = 20;
+
+
+bool r;
 bool d = true;
-string s = "alea";
+bool e = false;
+
+
 string ss;
+
 float f = 20.5;
 float g;
-
+char b = '2';
 const int var = 20;
 
 int my_arr[20];
@@ -18,26 +25,52 @@ bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
 
+TYPE Student student;
+
+
 END_GLOBAL
 
 
 FUNCTIONS:
 
+    int func(){
+
+        return 1;
+    }
+
+    int funct(int param){
+
+        return 2;
+    }
+
+    int f(){
+        int a;
+        if(a>b){
+
+        }
+        else{
+
+        }
+        return 2;
+    }
+
+    
+
+
 
 int func1(int param1, int param2, char param3, const int param4){
 
-    EVAL();
+    EVAL(a);
     int a;
     return rez;
 }
 
 
-int func2(int p1, int p2){
+int func2(int p1, int p2, Student student, int a[], int b[100]){
 
-    EVAL();
+    EVAL(a);
     
 
-    PRINT();
 
 
     if(param1 > param2){
@@ -70,13 +103,23 @@ members:
 
 methods:
 
+
+    int func(){
+        return 1;
+    }
+
+    int funct(int param){
+        return a;
+    }
+
+
     int met1(int param1, int param2){
 
         if(param1 > param2){
             a = 2;
         }
 
-        EVAL();
+        EVAL(a);
         int a;
         return rez;
     }
@@ -104,7 +147,7 @@ methods:
             a = 2;
         }
 
-        EVAL();
+        EVAL(a);
         return rez;
     }
 
@@ -123,20 +166,31 @@ END_TYPES
 
 MAIN:
 
+int a;
+int x = 10;
+char b;
+bool r;
+bool d = true;
+bool e = false;
+string ss;
+float f = 20.5;
+float g;
+const int var = 20;
+int my_arr[20];
+bool bs[100] = {true,false,true,true};
+float fsir[] = {1.2,2.5,3.0};
+int integers[] = {1,2,3,4,5};
 TYPE Student student;
-TYPE Profesor prof; 
+
 
 student-->mem1 = 12;
 student-->met1(a,c);
 
 TypeOf();
-TypeOf();
-
-EVAL();
+EVAL(a);
 
 while(c != 0){
 
-    /*stmt*/
     c = c - 1;
 }
 
@@ -145,7 +199,6 @@ for(c = 1 ; c<10 ; c = c + 1){
 }
 
 if(c > 20){
-    Print();
     A = 0;
 }
 
