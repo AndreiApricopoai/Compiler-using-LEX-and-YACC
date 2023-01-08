@@ -2,9 +2,9 @@ START:
 
 GLOBAL:
 
-int a;
+int b;
 int x = 10;
-int a;
+int b;
 char b;
 char c;
 
@@ -24,6 +24,8 @@ int my_arr[20];
 bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
+
+char test = "aasdasdas";
 
 TYPE Student student;
 

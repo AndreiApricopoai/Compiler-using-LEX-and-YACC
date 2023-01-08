@@ -64,9 +64,7 @@ char* strval;
 %token LCB
 %token RCB
 %token RPB
-%token LPB
-%token SINGLE_QUOTE
-%token DOUBLE_QUOTE
+%token LPB 
 %token BOOLEAN_OPERATOR
 %token TYPE
 
@@ -130,8 +128,8 @@ declaratie_variabila : DATA_TYPE IDENTIFIER /*ex: int a;*/
 /*valorile pe care le poate lua o declaratie_variabila*/
 value : INTEGER_VALUE
       | BOOL_VALUE
-      | DOUBLE_QUOTE STRING_VALUE DOUBLE_QUOTE
-      | SINGLE_QUOTE CHAR_VALUE SINGLE_QUOTE
+      | STRING_VALUE
+      | CHAR_VALUE 
       | FLOAT_VALUE
       ;
       
@@ -139,7 +137,6 @@ value : INTEGER_VALUE
 array_values : value
              | array_values COMMA value
              ;
-
 
 
 
