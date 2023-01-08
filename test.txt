@@ -19,7 +19,6 @@ float f = 20.5;
 float g;
 char b = '2';
 const int var = 20;
-int a;
 
 int my_arr[20];
 bool bs[100] = {true,false,true,true};
