@@ -64,8 +64,8 @@
 [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {return FLOAT_VALUE;} /*valori float*/
 
 
-'[\x21-\x7E]?'                                {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
-"[\x21-\x7E]+"                                       {return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
+\'[\x21-\x7E]?\'                                {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
+\"[\x21-\x7E/n]*\"                              {return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
 
 [\t ] ; /*aici ignoram spatiu si tab*/
 \n                                          {yylineno++;}   /**/
