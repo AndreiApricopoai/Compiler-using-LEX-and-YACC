@@ -4,7 +4,7 @@ GLOBAL:
 
 int a;
 int x = 10;
-
+int a;
 char b;
 
 
