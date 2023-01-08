@@ -17,7 +17,7 @@ string ss;
 int c = 20;
 bool d = true;
 float f = 20.5;
-
+int a;
 const int var = 20;
 
 int my_arr[20];
