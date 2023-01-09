@@ -7,7 +7,7 @@ int x = 10;
 int b;
 char b;
 char c;
-
+int x;
 bool r;
 bool d = true;
 bool e = false;
