@@ -11,6 +11,7 @@ extern int yylineno;
 extern void yyerror();
 extern int yylex();
 
+
 %}
 
 
@@ -63,9 +64,7 @@ char* strval;
 %token LCB
 %token RCB
 %token RPB
-%token LPB
-%token SINGLE_QUOTE
-%token DOUBLE_QUOTE
+%token LPB 
 %token BOOLEAN_OPERATOR
 %token TYPE
 
@@ -74,6 +73,9 @@ char* strval;
 %left RELATIONAL_OPERATOR
 %left ARITHMETIC_OPERATOR
 %left NOT
+%left ACCES
+%left LSB
+%left RSB
 %left LPB
 %left RPB
 
@@ -111,7 +113,7 @@ declaratii_variabile : declaratie_variabila SEMICOLON
 		;
 
 /*o declaratie(declaratie_variabila) poate avea urmatoarele forme*/
-declaratie_variabila : DATA_TYPE IDENTIFIER  /*ex: int a;*/
+declaratie_variabila : DATA_TYPE IDENTIFIER /*ex: int a;*/
           | DATA_TYPE IDENTIFIER ASSIGN value                                        { ;}
           | CONST DATA_TYPE IDENTIFIER                                               {/*thows error*/ yyerror("const without value asociated!");}
           | CONST DATA_TYPE IDENTIFIER ASSIGN value
@@ -126,8 +128,8 @@ declaratie_variabila : DATA_TYPE IDENTIFIER  /*ex: int a;*/
 /*valorile pe care le poate lua o declaratie_variabila*/
 value : INTEGER_VALUE
       | BOOL_VALUE
-      | DOUBLE_QUOTE STRING_VALUE DOUBLE_QUOTE
-      | SINGLE_QUOTE CHAR_VALUE SINGLE_QUOTE
+      | STRING_VALUE
+      | CHAR_VALUE 
       | FLOAT_VALUE
       ;
       
@@ -135,7 +137,6 @@ value : INTEGER_VALUE
 array_values : value
              | array_values COMMA value
              ;
-
 
 
 
@@ -192,14 +193,12 @@ control_statement : IF LPB conditions RPB  LCB statements  RCB
                   ;
 
 
-
 conditions : condition
            | NOT LPB conditions RPB
            | LPB conditions RPB
            | conditions BOOLEAN_OPERATOR conditions
            ;
            
-
 
 condition : expression RELATIONAL_OPERATOR expression 
           ;
@@ -243,9 +242,6 @@ expression : value
 typeof_arguments : ;
 
 
-
-
-
 types_block : type
       | types_block type
       ;
@@ -255,7 +251,12 @@ type : IDENTIFIER LCB inner_content RCB
      ;
 
 inner_content : MEMBERS declaratii_variabile METHODS functions_decl
+          | MEMBERS declaratii_variabile METHODS
+          | MEMBERS METHODS functions_decl
+          | MEMBERS METHODS
+          | MEMBERS
           | MEMBERS declaratii_variabile
+          | METHODS 
           | METHODS functions_decl
           ;
 
@@ -280,10 +281,12 @@ printf("EROARE: %s LA LINIA : %d\n",s,yylineno);
 }
 
 int main(int argc, char** argv){
- /*    
+
+ /*  
 extern int yydebug;
 yydebug = 1;
 */
+
 yyin=fopen(argv[1],"r");
 yyparse();
 return 0;

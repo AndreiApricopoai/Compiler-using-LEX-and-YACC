@@ -2,11 +2,11 @@ START:
 
 GLOBAL:
 
-int a;
+int b;
 int x = 10;
-
+int b;
 char b;
-
+char c;
 
 bool r;
 bool d = true;
@@ -17,7 +17,7 @@ string ss;
 
 float f = 20.5;
 float g;
-char b = '2';
+
 const int var = 20;
 int a;
 
@@ -25,6 +25,10 @@ int my_arr[20];
 bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
+
+char test = "\n";
+char test = '\n';
+
 
 TYPE Student student;
 
@@ -103,7 +107,6 @@ members:
     int mem2 = 10;
 
 methods:
-
 
     int func(){
         return 1;
@@ -202,8 +205,6 @@ for(c = 1 ; c<10 ; c = c + 1){
 if(c > 20){
     A = 0;
 }
-
-
 
 
 END_MAIN
