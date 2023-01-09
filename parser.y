@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "utilitar.h"
 
 extern FILE* yyin;
 extern char* yytext;
@@ -14,10 +15,14 @@ extern int yylex();
 
 %}
 
-
+/*tipuri de date pe care le ia yylval*/
 %union {
-int intval;
-char* strval;
+int int_value;
+char* string_value;
+float float_value;
+
+struct variableInformation* varInfo;
+
 }
 
 %token START
@@ -33,16 +38,16 @@ char* strval;
 %token END_MAIN
 %token END
 
-%token DATA_TYPE
+%token <string_value> DATA_TYPE
 %token CONST
 %token ACCES
 
-%token IDENTIFIER
-%token INTEGER_VALUE
-%token BOOL_VALUE
-%token FLOAT_VALUE
-%token STRING_VALUE
-%token CHAR_VALUE
+%token <string_value> IDENTIFIER
+%token <int_value> INTEGER_VALUE
+%token <int_value> BOOL_VALUE
+%token <float_value> FLOAT_VALUE
+%token <string_value> STRING_VALUE
+%token <string_value> CHAR_VALUE
 
 %token EVAL
 %token TYPEOF
@@ -54,10 +59,10 @@ char* strval;
 %token PRINT
 
 %token ASSIGN
-%token ARITHMETIC_OPERATOR
-%token RELATIONAL_OPERATOR
+%token <string_value> ARITHMETIC_OPERATOR
+%token <string_value> RELATIONAL_OPERATOR
 %token SEMICOLON
-%token NOT
+%token <string_value> NOT
 %token COMMA
 %token LSB
 %token RSB
@@ -65,9 +70,12 @@ char* strval;
 %token RCB
 %token RPB
 %token LPB 
-%token BOOLEAN_OPERATOR
+%token <string_value> BOOLEAN_OPERATOR
 %token TYPE
 
+
+
+%type<varInfo>declaratie_variabila
 
 %left BOOLEAN_OPERATOR
 %left RELATIONAL_OPERATOR
@@ -113,7 +121,7 @@ declaratii_variabile : declaratie_variabila SEMICOLON
 		;
 
 /*o declaratie(declaratie_variabila) poate avea urmatoarele forme*/
-declaratie_variabila : DATA_TYPE IDENTIFIER /*ex: int a;*/
+declaratie_variabila : DATA_TYPE IDENTIFIER {printf("%s %s \n",$1,$2);} /*ex: int a;*/
           | DATA_TYPE IDENTIFIER ASSIGN value                                        { ;}
           | CONST DATA_TYPE IDENTIFIER                                               {/*thows error*/ yyerror("const without value asociated!");}
           | CONST DATA_TYPE IDENTIFIER ASSIGN value

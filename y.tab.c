@@ -74,6 +74,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "utilitar.h"
 
 extern FILE* yyin;
 extern char* yytext;
@@ -83,7 +84,7 @@ extern int yylex();
 
 
 
-#line 87 "y.tab.c"
+#line 88 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -112,7 +113,7 @@ extern int yylex();
 # define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -226,12 +227,16 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "parser.y"
+#line 19 "parser.y"
 
-int intval;
-char* strval;
+int int_value;
+char* string_value;
+float float_value;
 
-#line 235 "y.tab.c"
+struct variableInformation* varInfo;
+
+
+#line 240 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -715,16 +720,16 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    90,    90,    94,    95,    99,   100,   101,   102,   106,
-     111,   112,   116,   117,   118,   119,   120,   121,   122,   123,
-     124,   129,   130,   131,   132,   133,   137,   138,   144,   147,
-     148,   151,   152,   153,   154,   157,   158,   161,   162,   163,
-     164,   165,   169,   170,   174,   175,   181,   182,   183,   184,
-     185,   186,   187,   188,   189,   190,   191,   192,   196,   197,
-     198,   199,   203,   208,   209,   213,   214,   215,   216,   217,
-     218,   219,   220,   225,   226,   227,   231,   232,   233,   234,
-     235,   236,   237,   238,   242,   245,   246,   249,   250,   253,
-     254,   255,   256,   257,   258,   259,   260,   267,   268
+       0,    98,    98,   102,   103,   107,   108,   109,   110,   114,
+     119,   120,   124,   125,   126,   127,   128,   129,   130,   131,
+     132,   137,   138,   139,   140,   141,   145,   146,   152,   155,
+     156,   159,   160,   161,   162,   165,   166,   169,   170,   171,
+     172,   173,   177,   178,   182,   183,   189,   190,   191,   192,
+     193,   194,   195,   196,   197,   198,   199,   200,   204,   205,
+     206,   207,   211,   216,   217,   221,   222,   223,   224,   225,
+     226,   227,   228,   233,   234,   235,   239,   240,   241,   242,
+     243,   244,   245,   246,   250,   253,   254,   257,   258,   261,
+     262,   263,   264,   265,   266,   267,   268,   275,   276
 };
 #endif
 
@@ -1492,31 +1497,37 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: START continut END  */
-#line 90 "parser.y"
+#line 98 "parser.y"
                               {printf("Programul este corect sintactic!\n");}
-#line 1498 "y.tab.c"
+#line 1503 "y.tab.c"
+    break;
+
+  case 12: /* declaratie_variabila: DATA_TYPE IDENTIFIER  */
+#line 124 "parser.y"
+                                            {printf("%s %s \n",(yyvsp[-1].string_value),(yyvsp[0].string_value));}
+#line 1509 "y.tab.c"
     break;
 
   case 13: /* declaratie_variabila: DATA_TYPE IDENTIFIER ASSIGN value  */
-#line 117 "parser.y"
+#line 125 "parser.y"
                                                                                      { ;}
-#line 1504 "y.tab.c"
+#line 1515 "y.tab.c"
     break;
 
   case 14: /* declaratie_variabila: CONST DATA_TYPE IDENTIFIER  */
-#line 118 "parser.y"
+#line 126 "parser.y"
                                                                                      {/*thows error*/ yyerror("const without value asociated!");}
-#line 1510 "y.tab.c"
+#line 1521 "y.tab.c"
     break;
 
   case 17: /* declaratie_variabila: DATA_TYPE IDENTIFIER LSB RSB  */
-#line 121 "parser.y"
+#line 129 "parser.y"
                                                                                      {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
-#line 1516 "y.tab.c"
+#line 1527 "y.tab.c"
     break;
 
 
-#line 1520 "y.tab.c"
+#line 1531 "y.tab.c"
 
       default: break;
     }
@@ -1709,7 +1720,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 272 "parser.y"
+#line 280 "parser.y"
 
 
 
@@ -1722,11 +1733,11 @@ printf("EROARE: %s LA LINIA : %d\n",s,yylineno);
 }
 
 int main(int argc, char** argv){
- 
-   
+
+ /*  
 extern int yydebug;
 yydebug = 1;
-
+*/
 
 yyin=fopen(argv[1],"r");
 yyparse();
