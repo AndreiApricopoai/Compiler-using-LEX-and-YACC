@@ -281,10 +281,12 @@ printf("EROARE: %s LA LINIA : %d\n",s,yylineno);
 }
 
 int main(int argc, char** argv){
- /*    
+
+ /*  
 extern int yydebug;
 yydebug = 1;
 */
+
 yyin=fopen(argv[1],"r");
 yyparse();
 return 0;
