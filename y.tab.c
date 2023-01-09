@@ -76,6 +76,22 @@
 #include <stdbool.h>
 #include "utilitar.h"
 
+
+#define IS_TYPE 1
+#define NOT_TYPE 0
+#define IS_ARRAY 1
+#define NOT_ARRAY 0
+#define IS_CONST 1
+#define NOT_CONST 0
+
+#define UNDEFINED "N/A"
+
+#define GLOBAL_SCOPE "global"
+#define TYPES_SCOPE "types"
+#define FUNCTIONS_SCOPE "functions"
+#define MAIN_SCOPE "main"
+
+
 extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
@@ -84,7 +100,23 @@ extern int yylex();
 
 
 
-#line 88 "y.tab.c"
+struct symbol_table symbols[100]; // aici vor fi stocate variabilele si array-urile
+int index_symbol = 0;
+
+
+char SCOPE[50] = "global"; // la inceput intram in global(default)
+char UNDEFINED_ARRAY[200][1000]={"N/A"};
+
+
+
+
+
+
+
+
+
+
+#line 120 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -227,8 +259,9 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 19 "parser.y"
+#line 51 "parser.y"
 
+      
 int int_value;
 char* string_value;
 float float_value;
@@ -236,7 +269,7 @@ float float_value;
 struct variableInformation* varInfo;
 
 
-#line 240 "y.tab.c"
+#line 273 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -720,16 +753,16 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    98,    98,   102,   103,   107,   108,   109,   110,   114,
-     119,   120,   124,   125,   126,   127,   128,   129,   130,   131,
-     132,   137,   138,   139,   140,   141,   145,   146,   152,   155,
-     156,   159,   160,   161,   162,   165,   166,   169,   170,   171,
-     172,   173,   177,   178,   182,   183,   189,   190,   191,   192,
-     193,   194,   195,   196,   197,   198,   199,   200,   204,   205,
-     206,   207,   211,   216,   217,   221,   222,   223,   224,   225,
-     226,   227,   228,   233,   234,   235,   239,   240,   241,   242,
-     243,   244,   245,   246,   250,   253,   254,   257,   258,   261,
-     262,   263,   264,   265,   266,   267,   268,   275,   276
+       0,   150,   150,   154,   155,   159,   160,   161,   162,   167,
+     172,   173,   177,   181,   184,   185,   188,   191,   195,   198,
+     204,   211,   212,   213,   214,   215,   219,   220,   226,   229,
+     230,   233,   234,   235,   236,   239,   240,   243,   244,   245,
+     246,   247,   251,   252,   256,   257,   263,   264,   265,   266,
+     267,   268,   269,   270,   271,   272,   273,   274,   278,   279,
+     280,   281,   285,   290,   291,   295,   296,   297,   298,   299,
+     300,   301,   302,   307,   308,   309,   313,   314,   315,   316,
+     317,   318,   319,   320,   324,   327,   328,   331,   332,   335,
+     336,   337,   338,   339,   340,   341,   342,   349,   350
 };
 #endif
 
@@ -1497,37 +1530,130 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: START continut END  */
-#line 98 "parser.y"
+#line 150 "parser.y"
                               {printf("Programul este corect sintactic!\n");}
-#line 1503 "y.tab.c"
+#line 1536 "y.tab.c"
+    break;
+
+  case 5: /* block: GLOBAL global_block END_GLOBAL  */
+#line 159 "parser.y"
+                                       {strcpy(SCOPE,FUNCTIONS_SCOPE);}
+#line 1542 "y.tab.c"
+    break;
+
+  case 6: /* block: FUNCTIONS functions_block END_FUNCTIONS  */
+#line 160 "parser.y"
+                                                {strcpy(SCOPE,TYPES_SCOPE);}
+#line 1548 "y.tab.c"
+    break;
+
+  case 7: /* block: TYPES types_block END_TYPES  */
+#line 161 "parser.y"
+                                    {strcpy(SCOPE,MAIN_SCOPE);}
+#line 1554 "y.tab.c"
     break;
 
   case 12: /* declaratie_variabila: DATA_TYPE IDENTIFIER  */
-#line 124 "parser.y"
-                                            {printf("%s %s \n",(yyvsp[-1].string_value),(yyvsp[0].string_value));}
-#line 1509 "y.tab.c"
+#line 177 "parser.y"
+                                           {
+      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, (yyvsp[-1].string_value), (yyvsp[0].string_value), UNDEFINED,UNDEFINED_ARRAY,0,0);
+   /*ex: int a;*/
+}
+#line 1563 "y.tab.c"
     break;
 
   case 13: /* declaratie_variabila: DATA_TYPE IDENTIFIER ASSIGN value  */
-#line 125 "parser.y"
-                                                                                     { ;}
-#line 1515 "y.tab.c"
+#line 181 "parser.y"
+                                             {
+      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, (yyvsp[-3].string_value), (yyvsp[-2].string_value), (yyvsp[0].string_value),UNDEFINED_ARRAY,0,0);
+}
+#line 1571 "y.tab.c"
     break;
 
   case 14: /* declaratie_variabila: CONST DATA_TYPE IDENTIFIER  */
-#line 126 "parser.y"
-                                                                                     {/*thows error*/ yyerror("const without value asociated!");}
-#line 1521 "y.tab.c"
+#line 184 "parser.y"
+                                          {/*thows error*/ yyerror("const without value asociated!");}
+#line 1577 "y.tab.c"
+    break;
+
+  case 15: /* declaratie_variabila: CONST DATA_TYPE IDENTIFIER ASSIGN value  */
+#line 185 "parser.y"
+                                                   {
+      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, (yyvsp[-3].string_value), (yyvsp[-2].string_value), (yyvsp[0].string_value), UNDEFINED_ARRAY,0,0);
+}
+#line 1585 "y.tab.c"
+    break;
+
+  case 16: /* declaratie_variabila: DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB  */
+#line 188 "parser.y"
+                                                      {
+      addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, (yyvsp[-4].string_value), (yyvsp[-3].string_value), UNDEFINED, UNDEFINED_ARRAY,(yyvsp[-1].int_value),111);
+}
+#line 1593 "y.tab.c"
     break;
 
   case 17: /* declaratie_variabila: DATA_TYPE IDENTIFIER LSB RSB  */
-#line 129 "parser.y"
-                                                                                     {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
-#line 1527 "y.tab.c"
+#line 191 "parser.y"
+                                           {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
+#line 1599 "y.tab.c"
+    break;
+
+  case 18: /* declaratie_variabila: DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB  */
+#line 195 "parser.y"
+                                                                                  {
+      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,$4);
+}
+#line 1607 "y.tab.c"
+    break;
+
+  case 19: /* declaratie_variabila: DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB  */
+#line 198 "parser.y"
+                                                                    {
+      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,0);
+}
+#line 1615 "y.tab.c"
+    break;
+
+  case 20: /* declaratie_variabila: TYPE IDENTIFIER IDENTIFIER  */
+#line 204 "parser.y"
+                                      {
+      addVariable(SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, (yyvsp[-1].string_value), (yyvsp[0].string_value), UNDEFINED, UNDEFINED_ARRAY,0,0);
+}
+#line 1623 "y.tab.c"
+    break;
+
+  case 21: /* value: INTEGER_VALUE  */
+#line 211 "parser.y"
+                      {(yyval.string_value) = strdup(yytext);}
+#line 1629 "y.tab.c"
+    break;
+
+  case 22: /* value: BOOL_VALUE  */
+#line 212 "parser.y"
+                      {(yyval.string_value) = strdup(yytext);}
+#line 1635 "y.tab.c"
+    break;
+
+  case 23: /* value: STRING_VALUE  */
+#line 213 "parser.y"
+                      {(yyval.string_value) = strdup(yytext);}
+#line 1641 "y.tab.c"
+    break;
+
+  case 24: /* value: CHAR_VALUE  */
+#line 214 "parser.y"
+                      {(yyval.string_value) = strdup(yytext);}
+#line 1647 "y.tab.c"
+    break;
+
+  case 25: /* value: FLOAT_VALUE  */
+#line 215 "parser.y"
+                      {(yyval.string_value) = strdup(yytext);}
+#line 1653 "y.tab.c"
     break;
 
 
-#line 1531 "y.tab.c"
+#line 1657 "y.tab.c"
 
       default: break;
     }
@@ -1720,7 +1846,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 280 "parser.y"
+#line 354 "parser.y"
 
 
 
