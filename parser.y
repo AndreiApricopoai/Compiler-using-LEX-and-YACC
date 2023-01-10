@@ -133,7 +133,15 @@ float float_value;
 %type<string_value>value
 %type<string_value>func_param
 
+%type<varInfo>array_values
+/*
+%type<varInfo>functions_decl
+%type<varInfo>func_decl
+%type<varInfo>function_params
+%type<varInfo>func_param
+%type<varInfo>function_arguments
 
+*/
 
 
 
@@ -414,7 +422,7 @@ statement : assignment SEMICOLON
           | IDENTIFIER ACCES function_call SEMICOLON
           | control_statement
           | TYPEOF LPB typeof_arguments RPB SEMICOLON 
-          | EVAL LPB expression RPB SEMICOLON
+          | EVAL LPB STRING_VALUE RPB SEMICOLON {Eval($3,yylineno);}
           | PRINT LPB value RPB SEMICOLON
           ;
                     
@@ -427,12 +435,12 @@ assignment : IDENTIFIER ASSIGN expression
 
 
 expression : value
-           | IDENTIFIER
-           | IDENTIFIER LSB INTEGER_VALUE RSB
-           | IDENTIFIER ACCES IDENTIFIER
-           | IDENTIFIER ACCES function_call
-           | function_call
-           | LPB expression RPB
+           | IDENTIFIER 
+           | IDENTIFIER LSB INTEGER_VALUE RSB 
+           | IDENTIFIER ACCES IDENTIFIER 
+           | IDENTIFIER ACCES function_call 
+           | function_call 
+           | LPB expression RPB 
            | expression ARITHMETIC_OPERATOR expression
            ;
 
