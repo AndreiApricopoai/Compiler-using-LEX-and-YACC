@@ -4,6 +4,23 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "utilitar.h"
+
+
+#define IS_TYPE 1
+#define NOT_TYPE 0
+#define IS_ARRAY 1
+#define NOT_ARRAY 0
+#define IS_CONST 1
+#define NOT_CONST 0
+
+#define UNDEFINED "N/A"
+
+#define GLOBAL_SCOPE "global"
+#define TYPES_SCOPE "types"
+#define FUNCTIONS_SCOPE "functions"
+#define MAIN_SCOPE "main"
+
 
 extern FILE* yyin;
 extern char* yytext;
@@ -12,12 +29,33 @@ extern void yyerror();
 extern int yylex();
 
 
+
+struct symbol_table symbols[100]; // aici vor fi stocate variabilele si array-urile
+int index_symbol = 0;
+
+
+char SCOPE[50] = "global"; // la inceput intram in global(default)
+char UNDEFINED_ARRAY[200][1000]={"N/A"};
+
+
+
+
+
+
+
+
+
 %}
 
-
+/*tipuri de date pe care le ia yylval*/
 %union {
-int intval;
-char* strval;
+      
+int int_value;
+char* string_value;
+float float_value;
+
+struct variableInformation* varInfo;
+
 }
 
 %token START
@@ -33,16 +71,16 @@ char* strval;
 %token END_MAIN
 %token END
 
-%token DATA_TYPE
+%token <string_value> DATA_TYPE
 %token CONST
 %token ACCES
 
-%token IDENTIFIER
-%token INTEGER_VALUE
-%token BOOL_VALUE
-%token FLOAT_VALUE
-%token STRING_VALUE
-%token CHAR_VALUE
+%token <string_value> IDENTIFIER
+%token <int_value> INTEGER_VALUE
+%token <int_value> BOOL_VALUE
+%token <float_value> FLOAT_VALUE
+%token <string_value> STRING_VALUE
+%token <string_value> CHAR_VALUE
 
 %token EVAL
 %token TYPEOF
@@ -54,10 +92,10 @@ char* strval;
 %token PRINT
 
 %token ASSIGN
-%token ARITHMETIC_OPERATOR
-%token RELATIONAL_OPERATOR
+%token <string_value> ARITHMETIC_OPERATOR
+%token <string_value> RELATIONAL_OPERATOR
 %token SEMICOLON
-%token NOT
+%token <string_value> NOT
 %token COMMA
 %token LSB
 %token RSB
@@ -65,8 +103,32 @@ char* strval;
 %token RCB
 %token RPB
 %token LPB 
-%token BOOLEAN_OPERATOR
+%token <string_value> BOOLEAN_OPERATOR
 %token TYPE
+
+
+
+%type<varInfo>declaratie_variabila
+
+
+
+%type<string_value>value
+
+
+%type<varInfo>array_values
+
+%type<string_value>expression
+/*
+%type<varInfo>functions_decl
+%type<varInfo>func_decl
+%type<varInfo>function_params
+%type<varInfo>func_param
+%type<varInfo>function_arguments
+
+*/
+
+
+
 
 
 %left BOOLEAN_OPERATOR
@@ -96,11 +158,12 @@ continut : block
 	    ;
 
 /*blocurile sunt GLOBAL, FUNCTIONS, TYPES, MAIN*/
-block : GLOBAL global_block END_GLOBAL
-      | FUNCTIONS functions_block END_FUNCTIONS
-      | TYPES types_block END_TYPES
-	 | MAIN main_block END_MAIN
+block : GLOBAL global_block END_GLOBAL {strcpy(SCOPE,FUNCTIONS_SCOPE);}
+      | FUNCTIONS functions_block END_FUNCTIONS {strcpy(SCOPE,TYPES_SCOPE);}
+      | TYPES types_block END_TYPES {strcpy(SCOPE,MAIN_SCOPE);}
+	| MAIN main_block END_MAIN 
       ; 
+
 
 /*global_block contine declaratiile de declaratii_variabile, array-uri si constante---------------------------------------------------------------------------*/
 global_block : declaratii_variabile
@@ -113,24 +176,45 @@ declaratii_variabile : declaratie_variabila SEMICOLON
 		;
 
 /*o declaratie(declaratie_variabila) poate avea urmatoarele forme*/
-declaratie_variabila : DATA_TYPE IDENTIFIER /*ex: int a;*/
-          | DATA_TYPE IDENTIFIER ASSIGN value                                        { ;}
-          | CONST DATA_TYPE IDENTIFIER                                               {/*thows error*/ yyerror("const without value asociated!");}
-          | CONST DATA_TYPE IDENTIFIER ASSIGN value
-          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB
-          | DATA_TYPE IDENTIFIER LSB RSB                                             {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
-          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB
-          | DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB
-          | TYPE IDENTIFIER IDENTIFIER
+declaratie_variabila : DATA_TYPE IDENTIFIER{
+      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
+   /*ex: int a;*/
+} 
+          | DATA_TYPE IDENTIFIER ASSIGN value{
+      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
+}      
+          | CONST DATA_TYPE IDENTIFIER    {/*thows error*/ yyerror("const without value asociated!");}
+          | CONST DATA_TYPE IDENTIFIER ASSIGN value{
+      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
+}
+          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB{
+      addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,111);
+}
+          | DATA_TYPE IDENTIFIER LSB RSB   {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
+
+
+
+          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB{
+      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,$4);
+}
+          | DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB{
+      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,0);
+}
+
+
+
+          | TYPE IDENTIFIER IDENTIFIER{
+      addVariable(SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
+}
           ;
 
 
 /*valorile pe care le poate lua o declaratie_variabila*/
-value : INTEGER_VALUE
-      | BOOL_VALUE
-      | STRING_VALUE
-      | CHAR_VALUE 
-      | FLOAT_VALUE
+value : INTEGER_VALUE {$$ = strdup(yytext);}
+      | BOOL_VALUE    {$$ = strdup(yytext);}
+      | STRING_VALUE  {$$ = strdup(yytext);}
+      | CHAR_VALUE    {$$ = strdup(yytext);}
+      | FLOAT_VALUE   {$$ = strdup(yytext);}
       ;
       
 
@@ -216,7 +300,7 @@ statement : assignment SEMICOLON
           | IDENTIFIER ACCES function_call SEMICOLON
           | control_statement
           | TYPEOF LPB typeof_arguments RPB SEMICOLON 
-          | EVAL LPB expression RPB SEMICOLON
+          | EVAL LPB STRING_VALUE RPB SEMICOLON {Eval($3,yylineno);}
           | PRINT LPB value RPB SEMICOLON
           ;
                     
@@ -229,12 +313,12 @@ assignment : IDENTIFIER ASSIGN expression
 
 
 expression : value
-           | IDENTIFIER
-           | IDENTIFIER LSB INTEGER_VALUE RSB
-           | IDENTIFIER ACCES IDENTIFIER
-           | IDENTIFIER ACCES function_call
-           | function_call
-           | LPB expression RPB
+           | IDENTIFIER 
+           | IDENTIFIER LSB INTEGER_VALUE RSB 
+           | IDENTIFIER ACCES IDENTIFIER 
+           | IDENTIFIER ACCES function_call 
+           | function_call 
+           | LPB expression RPB 
            | expression ARITHMETIC_OPERATOR expression
            ;
 

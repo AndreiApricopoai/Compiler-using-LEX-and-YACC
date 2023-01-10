@@ -39,7 +39,7 @@
 # define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -153,12 +153,17 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 18 "parser.y"
+#line 51 "parser.y"
 
-int intval;
-char* strval;
+      
+int int_value;
+char* string_value;
+float float_value;
 
-#line 162 "y.tab.h"
+struct variableInformation* varInfo;
+
+
+#line 167 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

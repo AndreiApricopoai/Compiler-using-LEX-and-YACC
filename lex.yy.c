@@ -924,7 +924,7 @@ YY_RULE_SETUP
 case 13:
 YY_RULE_SETUP
 #line 24 "lexer.l"
-{return DATA_TYPE;}  /*tipurile de date primitive*/
+{yylval.string_value = strdup(yytext) ;return DATA_TYPE;}  /*tipurile de date primitive*/
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
@@ -984,7 +984,7 @@ YY_RULE_SETUP
 case 25:
 YY_RULE_SETUP
 #line 41 "lexer.l"
-{return BOOLEAN_OPERATOR;}
+{yylval.string_value = strdup(yytext) ;return BOOLEAN_OPERATOR;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
@@ -994,22 +994,22 @@ YY_RULE_SETUP
 case 27:
 YY_RULE_SETUP
 #line 43 "lexer.l"
-{return ARITHMETIC_OPERATOR;} /*operatori aritmetici +,-, etc*/
+{yylval.string_value = strdup(yytext) ;return ARITHMETIC_OPERATOR;} /*operatori aritmetici +,-, etc*/
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 44 "lexer.l"
-{return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
+{yylval.string_value = strdup(yytext) ;return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 45 "lexer.l"
-{return NOT;}
+{yylval.string_value = strdup(yytext) ;return NOT;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 48 "lexer.l"
-{return BOOL_VALUE;} /*valori booleene (true si false)*/
+{if(strcmp(yytext,"true") == 0){yylval.int_value = 1;} else {yylval.int_value = 0;}  return BOOL_VALUE;} /*valori booleene (true si false)*/
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
@@ -1054,27 +1054,27 @@ YY_RULE_SETUP
 case 39:
 YY_RULE_SETUP
 #line 62 "lexer.l"
-{return IDENTIFIER;} /*nume de variabile si functii*/
+{yylval.string_value = strdup(yytext) ;return IDENTIFIER;} /*nume de variabile si functii*/
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 63 "lexer.l"
-{return INTEGER_VALUE;} /*valori int*/
+{yylval.int_value = atoi(yytext); return INTEGER_VALUE;} /*valori int*/
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 64 "lexer.l"
-{return FLOAT_VALUE;} /*valori float*/
+{yylval.int_value = atof(yytext);return FLOAT_VALUE;} /*valori float*/
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 67 "lexer.l"
-{return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
+{yylval.string_value = strdup(yytext); return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 68 "lexer.l"
-{return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
+{yylval.string_value = strdup(yytext); return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
