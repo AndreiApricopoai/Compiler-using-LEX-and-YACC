@@ -1,13 +1,13 @@
 START:
 
 GLOBAL:
-
 int a;
+int b;
 int x = 10;
-
+int b;
 char b;
-
-
+char c;
+int x;
 bool r;
 bool d = true;
 bool e = false;
@@ -17,13 +17,17 @@ string ss;
 
 float f = 20.5;
 float g;
-char b = '2';
+
 const int var = 20;
 
 int my_arr[20];
 bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
+
+char test = "\n";
+char test = '\n';
+
 
 TYPE Student student;
 
@@ -60,7 +64,7 @@ FUNCTIONS:
 
 int func1(int param1, int param2, char param3, const int param4){
 
-    EVAL(a);
+    EVAL("k[10]");
     int a;
     return rez;
 }
@@ -68,7 +72,7 @@ int func1(int param1, int param2, char param3, const int param4){
 
 int func2(int p1, int p2, Student student, int a[], int b[100]){
 
-    EVAL(a);
+    EVAL("5+a*(b-2)/7");
     
 
 
@@ -103,7 +107,6 @@ members:
 
 methods:
 
-
     int func(){
         return 1;
     }
@@ -119,7 +122,7 @@ methods:
             a = 2;
         }
 
-        EVAL(a);
+        EVAL("a");
         int a;
         return rez;
     }
@@ -147,7 +150,7 @@ methods:
             a = 2;
         }
 
-        EVAL(a);
+        EVAL("b");
         return rez;
     }
 
@@ -187,7 +190,7 @@ student-->mem1 = 12;
 student-->met1(a,c);
 
 TypeOf();
-EVAL(a);
+EVAL("a");
 
 while(c != 0){
 
@@ -201,8 +204,6 @@ for(c = 1 ; c<10 ; c = c + 1){
 if(c > 20){
     A = 0;
 }
-
-
 
 
 END_MAIN

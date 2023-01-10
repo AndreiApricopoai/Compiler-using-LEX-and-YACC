@@ -21,7 +21,7 @@
 "END_MAIN"                                  {return END_MAIN;}  /*toke care marcheaza final main*/
 "END"                                       {return END;}  /*token pentru finalul programului*/
 
-"int"|"float"|"char"|"string"|"bool"        {return DATA_TYPE;}  /*tipurile de date primitive*/
+"int"|"float"|"char"|"string"|"bool"        {yylval.string_value = strdup(yytext) ;return DATA_TYPE;}  /*tipurile de date primitive*/
 "const"                                     {return CONST;}      /*const*/
 "-->"                                       {return ACCES;}      /*operator pentru accesat membri si metode in clasele noastre(TYPES)*/ 
 
@@ -38,14 +38,14 @@
 "while"                                     {return WHILE;} /*keyword while*/
 "return"                                    {return RETURN;} /*keyword return din functii*/
 
-"||"|"&&"                                   {return BOOLEAN_OPERATOR;}
+"&&"|"||"                                   {yylval.string_value = strdup(yytext) ;return BOOLEAN_OPERATOR;}
 "="                                         {return ASSIGN;}   /*operator de atribuire*/
-"+"|"-"|"*"|"/"|"%"                         {return ARITHMETIC_OPERATOR;} /*operatori aritmetici +,-, etc*/
-">"|">="|"<"|"<="|"=="|"!="                 {return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
-"!"                                         {return NOT;}
+"+"|"-"|"*"|"/"|"%"                         {yylval.string_value = strdup(yytext) ;return ARITHMETIC_OPERATOR;} /*operatori aritmetici +,-, etc*/
+">"|">="|"<"|"<="|"=="|"!="                 {yylval.string_value = strdup(yytext) ;return RELATIONAL_OPERATOR;} /*operatori relationali(if,while,etc)*/
+"!"                                         {yylval.string_value = strdup(yytext) ;return NOT;}
 
 
-"true"|"false"                              {return BOOL_VALUE;} /*valori booleene (true si false)*/
+"true"|"false"                              {if(strcmp(yytext,"true") == 0){yylval.int_value = 1;} else {yylval.int_value = 0;}  return BOOL_VALUE;} /*valori booleene (true si false)*/
 
 
 ";"                                         {return SEMICOLON;}
@@ -56,15 +56,16 @@
 "}"                                         {return RCB;}
 ")"                                         {return RPB;}
 "("                                         {return LPB;}
-"\""                                          {return SINGLE_QUOTE;}
-"\'"                                          {return SINGLE_QUOTE;}
 
 
-[_a-zA-Z][_a-zA-Z0-9_]*                     {return IDENTIFIER;} /*nume de variabile si functii*/
-([+-])?(0|([1-9][0-9]*))                    {return INTEGER_VALUE;} /*valori int*/
-[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {return FLOAT_VALUE;} /*valori float*/
-[\x21-\x7E]                                 {return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
-([-~])*                                     {return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
+
+[_a-zA-Z][_a-zA-Z0-9_]*                     {yylval.string_value = strdup(yytext) ;return IDENTIFIER;} /*nume de variabile si functii*/
+([+-])?(0|([1-9][0-9]*))                    {yylval.int_value = atoi(yytext); return INTEGER_VALUE;} /*valori int*/
+[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {yylval.int_value = atof(yytext);return FLOAT_VALUE;} /*valori float*/
+
+
+\'[\\n]?[\x21-\x7E ]?\'                     {yylval.string_value = strdup(yytext); return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    
+\"[\x21-\x7E ]*\"                           {yylval.string_value = strdup(yytext); return STRING_VALUE;}   /*valori pe care le poate lua un sir de caractere*/ 
 
 [\t ] ; /*aici ignoram spatiu si tab*/
 \n                                          {yylineno++;}   /**/
