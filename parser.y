@@ -16,10 +16,10 @@
 
 #define UNDEFINED "N/A"
 
-#define GLOBAL_SCOPE "global"
-#define TYPES_SCOPE "types"
-#define FUNCTIONS_SCOPE "functions"
-#define MAIN_SCOPE "main"
+#define GLOBAL_SCOPE "GLOBAL"
+#define TYPES_SCOPE "TYPES"
+#define FUNCTIONS_SCOPE "FUNCTIONS"
+#define MAIN_SCOPE "MAIN"
 
 
 extern FILE* yyin;
@@ -28,18 +28,18 @@ extern int yylineno;
 extern void yyerror();
 extern int yylex();
 
+char SYMBOL_SCOPE[100] = "GLOBAL"; // la inceput intram in global(default)
+int symbol_index_scope = 0;
+int types_index = 0;
 
 
 struct symbol_table symbols[100]; // aici vor fi stocate variabilele si array-urile
 int index_symbol = 0;
 
-
-char SCOPE[50] = "global"; // la inceput intram in global(default)
 char UNDEFINED_ARRAY[200][1000]={"N/A"};
-
-
-
-
+char ARRAY_VALUES[200][1000];
+int index_arr = 0;
+int suntem_in_types = 0;
 
 
 
@@ -54,7 +54,6 @@ int int_value;
 char* string_value;
 float float_value;
 
-struct variableInformation* varInfo;
 
 }
 
@@ -108,14 +107,11 @@ struct variableInformation* varInfo;
 
 
 
-%type<varInfo>declaratie_variabila
-
 
 
 %type<string_value>value
 
 
-%type<varInfo>array_values
 /*
 %type<varInfo>functions_decl
 %type<varInfo>func_decl
@@ -156,10 +152,40 @@ continut : block
 	    ;
 
 /*blocurile sunt GLOBAL, FUNCTIONS, TYPES, MAIN*/
-block : GLOBAL global_block END_GLOBAL {strcpy(SCOPE,FUNCTIONS_SCOPE);}
-      | FUNCTIONS functions_block END_FUNCTIONS {strcpy(SCOPE,TYPES_SCOPE);}
-      | TYPES types_block END_TYPES {strcpy(SCOPE,MAIN_SCOPE);}
+block : GLOBAL global_block END_GLOBAL {
+      setScope(symbol_index_scope, types_index, SYMBOL_SCOPE, "functions");
+}
+      | GLOBAL  END_GLOBAL{
+
+      setScope(symbol_index_scope, types_index, SYMBOL_SCOPE, "functions");
+}
+      | FUNCTIONS functions_block END_FUNCTIONS {
+
+      symbol_index_scope = 0;
+      types_index = 0;
+      suntem_in_types = 1;
+      setScope(symbol_index_scope, types_index, SYMBOL_SCOPE, "types");
+
+}
+      |FUNCTIONS  END_FUNCTIONS{
+
+      symbol_index_scope = 0;
+      types_index = 0;
+      suntem_in_types = 1;
+      setScope(symbol_index_scope, types_index, SYMBOL_SCOPE, "types");
+
+}
+      | TYPES types_block END_TYPES {
+      strcpy(SYMBOL_SCOPE,MAIN_SCOPE);
+      suntem_in_types = 0;
+}
+      | TYPES  END_TYPES{
+
+      strcpy(SYMBOL_SCOPE,MAIN_SCOPE);
+      suntem_in_types = 0;
+}
 	| MAIN main_block END_MAIN 
+      | MAIN  END_MAIN 
       ; 
 
 
@@ -175,34 +201,35 @@ declaratii_variabile : declaratie_variabila SEMICOLON
 
 /*o declaratie(declaratie_variabila) poate avea urmatoarele forme*/
 declaratie_variabila : DATA_TYPE IDENTIFIER{
-      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
+      addVariable(SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
    /*ex: int a;*/
 } 
           | DATA_TYPE IDENTIFIER ASSIGN value{
-      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
+      addVariable(SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
 }      
           | CONST DATA_TYPE IDENTIFIER    {/*thows error*/ yyerror("const without value asociated!");}
           | CONST DATA_TYPE IDENTIFIER ASSIGN value{
-      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
+      addVariable(SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
 }
-          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB{
-      addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,111);
+          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB{      
+      addVariable(SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,0);
 }
           | DATA_TYPE IDENTIFIER LSB RSB   {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
 
 
-
           | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB{
-      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,$4);
+      addVariable(SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,$4,index_arr);
+      index_arr = 0;
+      memset(ARRAY_VALUES,0,200*100*sizeof(char));
 }
           | DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB{
-      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,0);
+      addVariable(SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,0,index_arr);
+      index_arr = 0;
+      memset(ARRAY_VALUES,0,200*100*sizeof(char));
 }
 
-
-
           | TYPE IDENTIFIER IDENTIFIER{
-      addVariable(SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
+      addVariable(SYMBOL_SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
 }
           ;
 
@@ -216,24 +243,61 @@ value : INTEGER_VALUE {$$ = strdup(yytext);}
       ;
       
 
-array_values : value
-             | array_values COMMA value
+array_values : value {strcpy(ARRAY_VALUES[index_arr],$1); index_arr++;}
+             | array_values COMMA value {strcpy(ARRAY_VALUES[index_arr],$3); index_arr++;}
              ;
 
 
 
 /*functions_block contine declaratiile si implementarea de functii-----------------------------------------------------------------------------------*/
-functions_block : functions_decl
+functions_block : functions_decl{symbol_index_scope = 0;}
           ;
 
 functions_decl : func_decl
       | functions_decl func_decl
       ;
 
-func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN expression SEMICOLON RCB
-          | DATA_TYPE IDENTIFIER LPB  RPB  LCB statements RETURN expression SEMICOLON RCB
-          | DATA_TYPE IDENTIFIER LPB function_params RPB  LCB  RETURN expression SEMICOLON RCB
-          | DATA_TYPE IDENTIFIER LPB  RPB  LCB  RETURN expression SEMICOLON RCB
+
+
+func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN expression SEMICOLON RCB{
+      symbol_index_scope++;
+      if(suntem_in_types == 1)
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "types");
+      else
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "functions");
+           
+
+}
+          | DATA_TYPE IDENTIFIER LPB  RPB  LCB statements RETURN expression SEMICOLON RCB{
+
+      symbol_index_scope++;
+      if(suntem_in_types == 1)
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "types");
+      else
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "functions");
+           
+
+}
+          | DATA_TYPE IDENTIFIER LPB function_params RPB  LCB  RETURN expression SEMICOLON RCB{
+
+      symbol_index_scope++;
+      if(suntem_in_types == 1)
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "types");
+      else
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "functions");
+           
+
+}
+          | DATA_TYPE IDENTIFIER LPB  RPB  LCB  RETURN expression SEMICOLON RCB{
+
+      symbol_index_scope++;
+      if(suntem_in_types == 1)
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "types");
+      else
+            setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "functions");
+           
+
+}
           ;
 
 function_params : func_param 
@@ -328,18 +392,28 @@ types_block : type
       | types_block type
       ;
 
-type : IDENTIFIER LCB inner_content RCB 
-     | IDENTIFIER LCB RCB
+
+type : IDENTIFIER LCB inner_content RCB {symbol_index_scope = 0; types_index++;  setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "types");}
+     | IDENTIFIER LCB RCB {symbol_index_scope = 0; types_index++;   setScope(symbol_index_scope,types_index, SYMBOL_SCOPE, "types");}
      ;
 
-inner_content : MEMBERS declaratii_variabile METHODS functions_decl
-          | MEMBERS declaratii_variabile METHODS
-          | MEMBERS METHODS functions_decl
-          | MEMBERS METHODS
-          | MEMBERS
-          | MEMBERS declaratii_variabile
-          | METHODS 
-          | METHODS functions_decl
+inner_content : MEMBERS declaratii_variabile METHODS functions_decl{
+
+}
+          | MEMBERS declaratii_variabile METHODS{
+}
+          | MEMBERS METHODS functions_decl{
+}
+          | MEMBERS METHODS{
+}
+          | MEMBERS{
+}
+          | MEMBERS declaratii_variabile{
+}
+          | METHODS{
+} 
+          | METHODS functions_decl{
+}
           ;
 
 
