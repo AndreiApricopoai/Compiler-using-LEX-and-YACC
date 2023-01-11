@@ -16,10 +16,10 @@
 
 #define UNDEFINED "N/A"
 
-#define GLOBAL_SCOPE "global"
-#define TYPES_SCOPE "types"
-#define FUNCTIONS_SCOPE "functions"
-#define MAIN_SCOPE "main"
+#define GLOBAL_SCOPE "GLOBAL"
+#define TYPES_SCOPE "TYPES"
+#define FUNCTIONS_SCOPE "FUNCTIONS"
+#define MAIN_SCOPE "MAIN"
 
 
 extern FILE* yyin;
@@ -28,17 +28,38 @@ extern int yylineno;
 extern void yyerror();
 extern int yylex();
 
+char SYMBOL_SCOPE[100] = "GLOBAL"; // la inceput intram in global(default)
+char FUNCTION_SCOPE[100] = "FUNCTIONS"; // la inceput intram in functions(default)
+
+int symbol_scope_position = 0;
+int function_scope_position = 0;
+
+int types_position = 0;
+int suntem_in_types = 0;
+
 
 
 struct symbol_table symbols[100]; // aici vor fi stocate variabilele si array-urile
-int index_symbol = 0;
+struct functions_table functions[100]; // aici vor fi stocate functiile si metodele
+struct types_table types[100];
+
+int index_symbols_table = 0;
+int index_functions_table = 0;
+int index_types_table = 0;
 
 
-char SCOPE[50] = "global"; // la inceput intram in global(default)
+
+
+
+
 char UNDEFINED_ARRAY[200][1000]={"N/A"};
+char ARRAY_VALUES[200][1000];
+int index_arr = 0;
 
+char FUNCTION_PARAMS[50][1000];
+char NO_PARAMS[50][1000] = {"N/A"};
 
-
+int index_par = 0;
 
 
 
@@ -54,7 +75,6 @@ int int_value;
 char* string_value;
 float float_value;
 
-struct variableInformation* varInfo;
 
 }
 
@@ -108,16 +128,12 @@ struct variableInformation* varInfo;
 
 
 
-%type<varInfo>declaratie_variabila
-
 
 
 %type<string_value>value
-
+%type<string_value>func_param
 
 %type<varInfo>array_values
-
-%type<string_value>expression
 /*
 %type<varInfo>functions_decl
 %type<varInfo>func_decl
@@ -158,10 +174,40 @@ continut : block
 	    ;
 
 /*blocurile sunt GLOBAL, FUNCTIONS, TYPES, MAIN*/
-block : GLOBAL global_block END_GLOBAL {strcpy(SCOPE,FUNCTIONS_SCOPE);}
-      | FUNCTIONS functions_block END_FUNCTIONS {strcpy(SCOPE,TYPES_SCOPE);}
-      | TYPES types_block END_TYPES {strcpy(SCOPE,MAIN_SCOPE);}
+block : GLOBAL global_block END_GLOBAL {
+      setSymbolScope(symbol_scope_position, types_position, SYMBOL_SCOPE, "functions");
+}
+      | GLOBAL  END_GLOBAL{
+
+      setSymbolScope(symbol_scope_position, types_position, SYMBOL_SCOPE, "functions");
+}
+      | FUNCTIONS functions_block END_FUNCTIONS {
+
+      symbol_scope_position = 0;
+      types_position = 0;
+      suntem_in_types = 1;
+      setSymbolScope(symbol_scope_position, types_position, SYMBOL_SCOPE, "types");
+
+}
+      |FUNCTIONS  END_FUNCTIONS{
+
+      symbol_scope_position = 0;
+      types_position = 0;
+      suntem_in_types = 1;
+      setSymbolScope(symbol_scope_position, types_position, SYMBOL_SCOPE, "types");
+
+}
+      | TYPES types_block END_TYPES {
+      strcpy(SYMBOL_SCOPE,MAIN_SCOPE);
+      suntem_in_types = 0;
+}
+      | TYPES  END_TYPES{
+
+      strcpy(SYMBOL_SCOPE,MAIN_SCOPE);
+      suntem_in_types = 0;
+}
 	| MAIN main_block END_MAIN 
+      | MAIN  END_MAIN 
       ; 
 
 
@@ -171,40 +217,47 @@ global_block : declaratii_variabile
        
 
 /*aici putem avea o declaratie sau mai multe*/
-declaratii_variabile : declaratie_variabila SEMICOLON
-		| declaratii_variabile declaratie_variabila SEMICOLON
+declaratii_variabile : declaratie_variabila SEMICOLON 
+		| declaratii_variabile declaratie_variabila SEMICOLON 
 		;
 
 /*o declaratie(declaratie_variabila) poate avea urmatoarele forme*/
 declaratie_variabila : DATA_TYPE IDENTIFIER{
-      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
-   /*ex: int a;*/
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
+      index_symbols_table++;
 } 
           | DATA_TYPE IDENTIFIER ASSIGN value{
-      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
+      index_symbols_table++;
 }      
           | CONST DATA_TYPE IDENTIFIER    {/*thows error*/ yyerror("const without value asociated!");}
           | CONST DATA_TYPE IDENTIFIER ASSIGN value{
-      addVariable(SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
+      index_symbols_table++;
 }
-          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB{
-      addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,111);
+          | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB{      
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,0);
+      index_symbols_table++;
 }
           | DATA_TYPE IDENTIFIER LSB RSB   {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
 
 
-
           | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB{
-      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,$4);
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,$4,index_arr);
+      index_symbols_table++;
+      index_arr = 0;
+      memset(ARRAY_VALUES,0,200*1000*sizeof(char));
 }
           | DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB{
-      //addVariable(SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ,0);
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,0,index_arr);
+      index_symbols_table++;
+      index_arr = 0;
+      memset(ARRAY_VALUES,0,200*1000*sizeof(char));
 }
 
-
-
           | TYPE IDENTIFIER IDENTIFIER{
-      addVariable(SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
+      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
+      index_symbols_table++;
 }
           ;
 
@@ -218,35 +271,104 @@ value : INTEGER_VALUE {$$ = strdup(yytext);}
       ;
       
 
-array_values : value
-             | array_values COMMA value
+array_values : array_value 
+             | array_values COMMA array_value 
              ;
+array_value : value{
+      strcpy(ARRAY_VALUES[index_arr],$1); index_arr++;
+}
+            ;
 
 
 
 /*functions_block contine declaratiile si implementarea de functii-----------------------------------------------------------------------------------*/
-functions_block : functions_decl
+functions_block : functions_decl{symbol_scope_position = 0;}
           ;
 
 functions_decl : func_decl
       | functions_decl func_decl
       ;
 
-func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN expression SEMICOLON RCB
-          | DATA_TYPE IDENTIFIER LPB  RPB  LCB statements RETURN expression SEMICOLON RCB
-          | DATA_TYPE IDENTIFIER LPB function_params RPB  LCB  RETURN expression SEMICOLON RCB
-          | DATA_TYPE IDENTIFIER LPB  RPB  LCB  RETURN expression SEMICOLON RCB
+
+
+func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN expression SEMICOLON RCB{
+      symbol_scope_position++;
+      if(suntem_in_types == 1)
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
+      else
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
+           
+      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, FUNCTION_PARAMS, index_par);
+      memset(FUNCTION_PARAMS,0,50*1000*sizeof(char));
+
+      index_par = 0;
+      index_functions_table++;
+
+}
+          | DATA_TYPE IDENTIFIER LPB  RPB  LCB statements RETURN expression SEMICOLON RCB{
+
+      symbol_scope_position++;
+      if(suntem_in_types == 1)
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
+      else
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
+
+      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, NO_PARAMS, 0);
+
+      index_par = 0;
+      index_functions_table++;
+     
+}
+          | DATA_TYPE IDENTIFIER LPB function_params RPB  LCB  RETURN expression SEMICOLON RCB{
+
+      symbol_scope_position++;
+      if(suntem_in_types == 1)
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
+      else
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
+
+      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, FUNCTION_PARAMS, index_par);
+      memset(FUNCTION_PARAMS,0,50*1000*sizeof(char));
+
+      index_par = 0;
+      index_functions_table++;
+
+
+}
+          | DATA_TYPE IDENTIFIER LPB  RPB  LCB  RETURN expression SEMICOLON RCB{
+
+      symbol_scope_position++;
+      if(suntem_in_types == 1)
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
+      else
+            setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
+           
+      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, NO_PARAMS, 0);
+
+      index_par = 0;
+      index_functions_table++;
+}
           ;
 
 function_params : func_param 
-       | function_params COMMA func_param 
+       | function_params COMMA func_param  
        ;
 
-func_param : DATA_TYPE IDENTIFIER
-      | CONST DATA_TYPE IDENTIFIER
-      | DATA_TYPE IDENTIFIER LSB RSB
-      | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB
-      | IDENTIFIER IDENTIFIER /*pentru tipuri custom*/
+func_param : DATA_TYPE IDENTIFIER {strcpy($$,$1); strcat($$," "); strcat($$,$2); strcpy(FUNCTION_PARAMS[index_par],$$); index_par++;}
+      | CONST DATA_TYPE IDENTIFIER {strcpy($$,"const"); strcat($$," "); strcat($$,$2); strcat($$," "); strcat($$,$3); strcpy(FUNCTION_PARAMS[index_par],$$); index_par++;}
+      | DATA_TYPE IDENTIFIER LSB RSB {strcpy($$,$1); strcat($$," "); strcat($$,$2);strcat($$,"["); strcat($$,"]"); strcpy(FUNCTION_PARAMS[index_par],$$); index_par++;}
+      | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB {
+      strcpy($$,$1); strcat($$," "); strcat($$,$2);strcat($$,"[");
+
+      char intstring[20]= "\0";
+      sprintf(intstring,"%d", $4);
+      strcat($$,intstring);
+      strcat($$,"]");
+
+      strcpy(FUNCTION_PARAMS[index_par],$$);
+      index_par++;
+}
+      | IDENTIFIER IDENTIFIER {strcpy($$,$1); strcat($$," "); strcat($$,$2); strcpy(FUNCTION_PARAMS[index_par],$$); index_par++;}/*pentru tipuri custom*/
       ;
 
 
@@ -330,18 +452,43 @@ types_block : type
       | types_block type
       ;
 
-type : IDENTIFIER LCB inner_content RCB 
-     | IDENTIFIER LCB RCB
+
+type : IDENTIFIER LCB inner_content RCB {
+      symbol_scope_position = 0; types_position++;  
+      setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
+      setFunctionScope(types_position, FUNCTION_SCOPE,"types");
+
+      addType(index_types_table, $1, types);
+      index_types_table++;
+
+}
+     | IDENTIFIER LCB RCB {
+      symbol_scope_position = 0; types_position++;
+      setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
+      setFunctionScope(types_position,FUNCTION_SCOPE,"types");
+
+      addType(index_types_table, $1, types);
+      index_types_table++;
+      }
      ;
 
-inner_content : MEMBERS declaratii_variabile METHODS functions_decl
-          | MEMBERS declaratii_variabile METHODS
-          | MEMBERS METHODS functions_decl
-          | MEMBERS METHODS
-          | MEMBERS
-          | MEMBERS declaratii_variabile
-          | METHODS 
-          | METHODS functions_decl
+inner_content : MEMBERS declaratii_variabile METHODS functions_decl{
+
+}
+          | MEMBERS declaratii_variabile METHODS{
+}
+          | MEMBERS METHODS functions_decl{
+}
+          | MEMBERS METHODS{
+}
+          | MEMBERS{
+}
+          | MEMBERS declaratii_variabile{
+}
+          | METHODS{
+} 
+          | METHODS functions_decl{
+}
           ;
 
 
@@ -354,6 +501,11 @@ main_block : statement
 
 
 %%
+
+
+void showError(int error_code){
+
+}
 
 
 
