@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "y.tab.h"
+
+
 %}
 %option noyywrap
 
@@ -59,7 +61,11 @@
 
 
 
-[_a-zA-Z][_a-zA-Z0-9_]*                     {yylval.string_value = strdup(yytext) ;return IDENTIFIER;} /*nume de variabile si functii*/
+[_a-zA-Z][_a-zA-Z0-9_]* {/*nume de variabile si functii*/
+    yylval.string_value = strdup(yytext); 
+    return IDENTIFIER;
+    }
+
 ([+-])?(0|([1-9][0-9]*))                    {yylval.int_value = atoi(yytext); return INTEGER_VALUE;} /*valori int*/
 [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {yylval.int_value = atof(yytext);return FLOAT_VALUE;} /*valori float*/
 

@@ -3,17 +3,19 @@
 #include <stdio.h>
 #include <string.h>
 
+struct Node
+{
+	char info;
+	struct Node *left;
+	struct Node *right;
+};
+
 struct Stack
 {
 	int top;
 	unsigned capacity;
 	int *array;
-};
-
-struct Node
-{
-	char info;
-	struct Node *left, *right;
+	struct Node *arrayStack[100];
 };
 
 struct Stack *createStack(unsigned capacity)
@@ -47,15 +49,47 @@ char pop(struct Stack *stack)
 		return stack->array[stack->top--];
 	return '$';
 }
+struct Node *popNode(struct Stack *stack)
+{
+	if (stack->top == -1)
+	{
+		return NULL;
+	}
+
+	return stack->arrayStack[stack->top--];
+}
 
 void push(struct Stack *stack, char op)
 {
 	stack->array[++stack->top] = op;
 }
 
+void pushStS(struct Stack *stack, struct Node *node)
+{
+	stack->arrayStack[++stack->top] = node;
+}
+
 int isOperand(char ch)
 {
-	return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9');
+	return (ch >= 'a' && ch <= 'z') ||
+		   (ch >= 'A' && ch <= 'Z') ||
+		   (ch >= '0' && ch <= '9') ||
+		   (ch >= '[' && ch <= ']');
+}
+
+int isNumber(char ch)
+{
+	return (ch >= '0' && ch <= '9');
+}
+
+int isSign(char ch)
+{
+	return ch == '+' || ch == '-' || ch == '*' || ch == '/';
+}
+
+int toDigit(char ch)
+{
+	return ch - '0';
 }
 
 int Prec(char ch)
@@ -134,26 +168,59 @@ struct Node *buildTree(char postfix[])
 
 	for (int i = 0; i < strlen(postfix); i++)
 	{
-		if (!isOperand(postfix[i]))
+		if (isOperand(postfix[i]))
 		{
 			t = newNode(postfix[i]);
-			push(stack, t);
+			pushStS(stack, t);
+		}
+		else if (isSign(postfix[i]))
+		{
+			t = newNode(postfix[i]);
+			t1 = popNode(stack);
+			t2 = popNode(stack);
+
+			t->right = t1;
+			t->left = t2;
+			pushStS(stack, t);
 		}
 		else
 		{
-			t = newNode(postfix[i]);
-			t1 = stack->top;
-			pop(stack);
-			t2 = stack->top;
-			pop(stack);
-			t->right = t1;
-			t->left = t2;
-			push(stack, t);
+			printf("Invalid character: %c", postfix[i]);
 		}
 	}
 
-	t=stack->top;
-	pop(stack);
+	t = popNode(stack);
 
 	return t;
+}
+
+int evaluate(struct Node *root)
+{
+	if (root == NULL)
+		return 0;
+	if (!isSign(root->info))
+		return toDigit(root->info);
+
+	int left = evaluate(root->left);
+	int right = evaluate(root->right);
+	switch (root->info)
+	{
+	case '+':
+		return left + right;
+	case '-':
+		return left - right;
+	case '*':
+		return left * right;
+	case '/':
+		if (right == 0)
+		{
+			printf("Divide by zero error.");
+			exit(0);
+		}
+		return left / right;
+	case isOperand(root->info):
+		return root->info;
+	}
+
+	return -1;
 }

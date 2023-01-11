@@ -72,7 +72,7 @@ int func1(int param1, int param2, char param3, const int param4){
 
 int func2(int p1, int p2, Student student, int a[], int b[100]){
 
-    EVAL("5+a*(b-2)/7");
+    EVAL("(3+1)*2-9+a+f(a)-m-->c");
     
 
 
