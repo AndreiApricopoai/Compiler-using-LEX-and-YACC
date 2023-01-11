@@ -28,6 +28,7 @@ extern int yylineno;
 extern void yyerror();
 extern int yylex();
 
+
 char SYMBOL_SCOPE[100] = "GLOBAL"; // la inceput intram in global(default)
 char FUNCTION_SCOPE[100] = "FUNCTIONS"; // la inceput intram in functions(default)
 
@@ -255,11 +256,11 @@ declaratie_variabila : DATA_TYPE IDENTIFIER{
 
 
 /*valorile pe care le poate lua o declaratie_variabila*/
-value : INTEGER_VALUE {$$ = strdup(yytext);}
-      | BOOL_VALUE    {$$ = strdup(yytext);}
-      | STRING_VALUE  {$$ = strdup(yytext);}
-      | CHAR_VALUE    {$$ = strdup(yytext);}
-      | FLOAT_VALUE   {$$ = strdup(yytext);}
+value : INTEGER_VALUE {$$ = strdup(yytext); }
+      | BOOL_VALUE    {$$ = strdup(yytext); }
+      | STRING_VALUE  {$$ = strdup(yytext); }
+      | CHAR_VALUE    {$$ = strdup(yytext); }
+      | FLOAT_VALUE   {$$ = strdup(yytext); }
       ;
       
 
@@ -515,8 +516,17 @@ extern int yydebug;
 yydebug = 1;
 */
 
+
+
 yyin=fopen(argv[1],"r");
 yyparse();
+
+int res = symbol_table_file(symbols, index_symbols_table); // aici printam tabela de simboluri in symbol_table.txt
+showError(res);
+res = functions_table_file(functions, index_functions_table); // aici printam tabela de functii in functions_table.txt
+showError(res);
+
+
 return 0;
 
 } 

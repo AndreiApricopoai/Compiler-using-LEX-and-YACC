@@ -67,7 +67,7 @@
     }
 
 ([+-])?(0|([1-9][0-9]*))                    {yylval.int_value = atoi(yytext); return INTEGER_VALUE;} /*valori int*/
-[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?      {yylval.int_value = atof(yytext);return FLOAT_VALUE;} /*valori float*/
+[-+]?[0-9]+\.?[0-9]+([eE][-+]?[0-9]+)?      {yylval.int_value = atof(yytext);return FLOAT_VALUE;} /*valori float*/
 
 
 \'[\\n]?[\x21-\x7E ]?\'                     {yylval.string_value = strdup(yytext); return CHAR_VALUE;}  /*valorile pe care le poate lua un caracter(ASCII)*/    

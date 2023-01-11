@@ -1,32 +1,33 @@
 START:
 
 GLOBAL:
-
-int b;
 int x = 10;
+
+int a;
 int b;
-char b;
 char c;
-int x;
+char asd = 'd';
+int num;
 bool r;
-bool d = true;
-bool e = false;
+bool ddd = true;
+bool eee = false;
 
-
+string aaaaaa[] = {"1111","2222","3333"};
+string nume = "andrei";
 string ss;
 
-float f = 20.5;
-float g;
+float fval = 20.5;
+float fgol;
 
 const int var = 20;
 
 int my_arr[20];
-bool bs[100] = {true,false,true,true};
-float fsir[] = {1.2,2.5,3.0};
+bool bools[100] = {true,false,true,true};
+float floatsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
 
-char test = "\n";
-char test = '\n';
+char test1 = 'a';
+char test2 = '2';
 
 
 TYPE Student student;
@@ -129,7 +130,7 @@ methods:
 
     bool met2(int param3, int param4){
         bool val; 
-        int a ;
+        int re;
         return val;
     }
 
@@ -156,7 +157,7 @@ methods:
 
     bool met2(int param3, int param4){
         bool val; 
-        int a;
+        int as;
         return val;
     }
     }
@@ -170,7 +171,7 @@ END_TYPES
 MAIN:
 
 int a;
-int x = 10;
+int x = 50;
 char b;
 bool r;
 bool d = true;
@@ -184,6 +185,7 @@ bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
 TYPE Student student;
+
 
 
 student-->mem1 = 12;
