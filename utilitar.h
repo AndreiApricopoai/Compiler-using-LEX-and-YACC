@@ -2,28 +2,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "Eval.h"
 
 struct symbol_table
 {
 
-    char *data_type;
-    char *identifier;
+    char data_type[100];  //--
+    char identifier[100]; //--
     int int_val;
     int bool_val;
     float float_val;
     char char_val;
-    char *string_val;
+    char string_val[1000];
 
-    char *scope;
+    int are_valoare;
+
+    char scope[100]; //--
 
     int is_const;
     int is_array;
     int is_type;
 
     int int_array_values[200];
+    float float_array_values[200];
     char char_array_values[200];
-    char *string_array_values[200];
+    char string_array_values[200][1000];
     int bool_array_values[200];
 
     int array_number_elements;
@@ -32,52 +34,191 @@ struct symbol_table
 
 struct param
 {
-    char *data_type;
-    char *identifier;
-    char *scope;
+    char data_type[100];
+    char identifier[100];
+
     int is_const;
     int is_array;
     int is_type;
 
-    int array_number_elements;
     int array_allocated_memory;
 };
 
-struct functionInformation
-{
-    char *data_type;
-    char *identifier;
-    char *scope;
-    struct param params[100];
-};
 struct functions_table
 {
-    char *data_type;
-    char *identifier;
+    char data_type[100];
+    char identifier[100];
+    char scope[100];
 
-    int param_index;
+    int are_params;
+
+    int params_number_elements;
     struct param params[50];
+    char params_text[50][1000];
 };
+
 struct types_table
 {
-    char *identifier;
+    char identifier[100];
 };
 
-struct typeInformation
+struct Node
 {
-    /* data */
+    char info;
+    struct Node *left;
+    struct Node *right;
 };
 
-int addVariable(char *scope, struct symbol_table symbols[100], int is_type, int is_array, int is_const, char *data_type, char *identifier, char *value, char array_values[200][1000], int array_allocated_memory, int array_number_elements)
+struct Stack
+{
+    int top;
+    unsigned capacity;
+    int *array;
+    struct Node *arrayStack[100];
+};
+
+int is_correct_value(char *datatype, char *value)
 {
 
-    if (strcmp(array_values[0], "N/A") == 0)
+    if (strcmp(datatype, "int") == 0)
     {
-        // printf("pull | ");
+        for (int i = 0; i < strlen(value); i++)
+        {
+            if ((value[i] < 48) || (value[i] > 57))
+            {
+                if ((value[i] != '+') && (value[i] != '-'))
+                    return 0;
+            }
+        }
+        return 1;
     }
-    // printf("%s | %s |%s |%s \n " , scope, value, array_values[0],identifier );
+    if (strcmp(datatype, "float") == 0)
+    {
+
+        float ignore;
+        char c;
+        int ret = sscanf(value, "%f %c", &ignore, &c);
+        if (ret == 1)
+            return 1;
+
+        return 0;
+    }
+    if (strcmp(datatype, "bool") == 0)
+    {
+        if ((strcmp(value, "true") == 0) || (strcmp(value, "false") == 0))
+            return 1;
+    }
+    if (strcmp(datatype, "char") == 0)
+    {
+        if ((value[0] == '\'') && (value[2] == '\''))
+            return 1;
+    }
+    if (strcmp(datatype, "string") == 0)
+    {
+        if ((value[0] == '\"') && (value[strlen(value) - 1] == '\"'))
+            return 1;
+    }
+
     return 0;
 }
+
+int are_correct_array_values(char *datatype, char array_values[200][1000], int array_number_elements)
+{
+    for (int i = 0; i < array_number_elements; i++)
+    {
+        if (is_correct_value(datatype, array_values[i]) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+void addValue(char *datatype, char *value, int index, struct symbol_table symbols[100])
+{
+
+    if (strcmp(datatype, "int") == 0)
+    {
+        int ival = atoi(value);
+        symbols[index].int_val = ival;
+    }
+
+    if (strcmp(datatype, "float") == 0)
+    {
+        float fval = atof(value);
+        symbols[index].float_val = fval;
+    }
+
+    if (strcmp(datatype, "char") == 0)
+    {
+        symbols[index].char_val = value[1];
+    }
+
+    if (strcmp(datatype, "string") == 0)
+    {
+        int len = strlen(value);
+        if (len > 0)
+            value++;
+        if (len > 1)
+            value[len - 2] = '\0';
+        strcpy(symbols[index].string_val, value);
+    }
+
+    if (strcmp(datatype, "bool") == 0)
+    {
+        if (strcmp(value, "true") == 0)
+            symbols[index].bool_val = 1;
+        else
+            symbols[index].bool_val = 0;
+    }
+}
+
+void addArrayValues(char *datatype, char array_values[200][1000], int index, int array_number_elements, struct symbol_table symbols[100])
+{
+
+    for (int i = 0; i < array_number_elements; i++)
+    {
+
+        if (strcmp(datatype, "int") == 0)
+        {
+            int ival = atoi(array_values[i]);
+            symbols[index].int_array_values[i] = ival;
+        }
+
+        if (strcmp(datatype, "float") == 0)
+        {
+            int fval = atof(array_values[i]);
+            symbols[index].float_array_values[i] = fval;
+        }
+
+        if (strcmp(datatype, "char") == 0)
+        {
+            symbols[index].char_array_values[i] = array_values[i][1];
+        }
+
+        if (strcmp(datatype, "string") == 0)
+        {
+
+            char aux[1000];
+            char *s = strcpy(aux, array_values[i]);
+
+            int len = strlen(s);
+            if (len > 0)
+                s++;
+            if (len > 1)
+                s[len - 2] = '\0';
+            strcpy(symbols[index].string_array_values[i], s);
+        }
+
+        if (strcmp(datatype, "bool") == 0)
+        {
+
+            if (strcmp(array_values[i], "true") == 0)
+                symbols[index].bool_array_values[i] = 1;
+            else
+                symbols[index].bool_array_values[i] = 0;
+        }
+    }
+}
+
 void setSymbolScope(int index, int type_index, char scope[100], char *block)
 {
     if (strcmp(block, "functions") == 0)
@@ -133,20 +274,41 @@ void setFunctionScope(int type_index, char scope[100], char *block)
     }
 }
 
-int existsVariable(char *scope, char *symbol)
+int existsVariable(char *scope, char *identifier, struct symbol_table symbols[100], int nr_elements)
 {
+
+    for (int i = 0; i < nr_elements; i++)
+    {
+        if ((strcmp(symbols[i].identifier, identifier) == 0) && (strcmp(symbols[i].scope, scope) == 0))
+        {
+            return 1;
+        }
+    }
 
     return 0;
 }
 
-int existsFunction(char *scope, char *function)
+int existsFunction(char *scope, char *identifier, struct functions_table functions[100], int nr_elements)
 {
 
+    for (int i = 0; i < nr_elements; i++)
+    {
+        if ((strcmp(functions[i].identifier, identifier) == 0) && (strcmp(functions[i].scope, scope) == 0))
+        {
+            return 1;
+        }
+    }
     return 0;
 }
 
-int existsType(char *scope, char *type)
+int existsType(char *identifier, struct types_table types[100], int nr_elements)
 {
+
+    for (int i = 0; i < nr_elements; i++)
+    {
+        if (strcmp(types[i].identifier, identifier) == 0)
+            return 1;
+    }
 
     return 0;
 }
@@ -157,13 +319,225 @@ int addSymbol(int table_index, char *scope, struct symbol_table symbols[100],
 {
 
     // printf("identifier : %s\nscope : %s\ndata_type : %s\nvalue : %s\narray_values : %s , %s\n\n\n",identifier,scope,data_type,value,array_values[0],array_values[1]);
-    // printf("%d ", table_index);
+    if (existsVariable(scope, identifier, symbols, table_index) == 0)
+    {
+        struct symbol_table s;
+
+        strcpy(s.data_type, data_type);
+        strcpy(s.identifier, identifier);
+        strcpy(s.scope, scope);
+
+        if (is_type == 1)
+        {
+            s.is_array = 0;
+            s.is_type = 1;
+            s.is_const = 0;
+            s.are_valoare = 0;
+            symbols[table_index] = s;
+        }
+        else if (is_const == 1)
+        {
+            s.is_array = 0;
+            s.is_type = 0;
+            s.is_const = 1;
+            s.are_valoare = 1;
+            symbols[table_index] = s;
+
+            if (is_correct_value(data_type, value) == 1)
+            {
+                addValue(data_type, value, table_index, symbols);
+            }
+            else
+            {
+                return -1; // variable has diffrent datatype value in definition
+            }
+        }
+        else if (is_array == 1)
+        {
+            s.is_array = 1;
+            s.is_type = 0;
+            s.is_const = 0;
+
+            if (strcmp(array_values[0], "N/A") == 0)
+            {
+                s.are_valoare = 0;
+                s.array_number_elements = 0;
+                s.array_allocated_memory = array_allocated_memory;
+
+                symbols[table_index] = s;
+            }
+            else
+            {
+
+                s.are_valoare = 1;
+                s.array_number_elements = array_number_elements;
+                s.array_allocated_memory = array_allocated_memory;
+                symbols[table_index] = s;
+
+                if (are_correct_array_values(data_type, array_values, array_number_elements) == 1)
+                    addArrayValues(data_type, array_values, table_index, array_number_elements, symbols);
+                else
+                    return -2; // valorile din array nu sunt de tipul array-ului
+            }
+        }
+        else
+        {
+            s.is_array = 0;
+            s.is_type = 0;
+            s.is_const = 0;
+
+            if (strcmp(value, "N/A") == 0)
+            {
+                s.are_valoare = 0;
+                symbols[table_index] = s;
+            }
+            else
+            {
+                s.are_valoare = 1;
+                symbols[table_index] = s;
+                if (is_correct_value(data_type, value) == 1)
+                    addValue(data_type, value, table_index, symbols);
+                else
+                    return -1; // variable has diffrent datatype value in definition
+            }
+        }
+    }
+    else
+    {
+        return -3; // eroare variabila sau membrul de tip definit este deja definita in acel scope
+    }
 
     return 0;
 }
 
+int addParams(char params_text[50][1000], struct functions_table functions[100], int index, int params_number)
+{
+
+    for (int i = 0; i < params_number; i++)
+    {
+        struct param p;
+
+        char aux[1000];
+        strcpy(aux, params_text[i]);
+
+        if (strstr(aux, "const") != NULL)
+        { // aici avem constante  || const int a;
+
+            p.is_const = 1;
+            p.is_array = 0;
+            p.is_type = 0;
+            p.array_allocated_memory = 0;
+
+            char *pointer = strtok(aux, " ");
+
+            pointer = strtok(NULL, " ");
+            strcpy(p.data_type, pointer);
+
+            pointer = strtok(NULL, " ");
+            strcpy(p.identifier, pointer);
+        }
+        else if ((strchr(aux, '[') == NULL) && (strchr(aux, ']') == NULL))
+        { // aici avem variabile normale ||| int a || Student student
+
+            char *pointer = strtok(aux, " ");
+            strcpy(p.data_type, pointer);
+
+            if ((strcmp(pointer, "int") == 0) || (strcmp(pointer, "bool") == 0) || (strcmp(pointer, "char") == 0) || (strcmp(pointer, "string") == 0) || (strcmp(pointer, "float") == 0))
+            {
+                p.is_const = 0;
+                p.is_array = 0;
+                p.is_type = 0;
+                p.array_allocated_memory = 0;
+            }
+            else
+            {
+                p.is_const = 0;
+                p.is_array = 0;
+                p.is_type = 1;
+                p.array_allocated_memory = 0;
+            }
+
+            pointer = strtok(NULL, " ");
+            strcpy(p.identifier, pointer);
+        }
+        else if ((strchr(aux, '[') != NULL) && (strchr(aux, ']') != NULL))
+        { // aici avem array    || int a[] , int a[100]
+
+            p.is_const = 0;
+            p.is_array = 1;
+            p.is_type = 0;
+
+            char *pointer = strtok(aux, " []");
+            strcpy(p.data_type, pointer);
+
+            pointer = strtok(NULL, " []");
+            strcpy(p.identifier, pointer);
+
+            pointer = strtok(NULL, " []");
+            if (pointer == NULL)
+            {
+                p.array_allocated_memory = 0;
+            }
+            else
+            {
+                int ival = atoi(pointer);
+                p.array_allocated_memory = ival;
+            }
+        }
+
+        // const int param4 || int param1 || int a[] || int b[100]
+
+        functions[index].params[i] = p;
+    }
+
+    for (int n = 0; n < params_number - 1; n++)
+    {
+        for (int m = n + 1; m < params_number; m++)
+        {
+            if (strcmp(functions[index].params[n].identifier, functions[index].params[m].identifier) == 0)
+                return 0;
+        }
+    }
+
+    return 1;
+}
+
 int addFunction(int table_index, char *scope, char *data_type, char *identifier, struct functions_table functions[100], char params[50][1000], int params_number)
 {
+
+    if (existsFunction(scope, identifier, functions, table_index) == 0)
+    {
+        struct functions_table f;
+        strcpy(f.data_type, data_type);
+        strcpy(f.identifier, identifier);
+        strcpy(f.scope, scope);
+
+        if (strcmp(params[0], "N/A") == 0)
+        {
+            f.are_params = 0;
+            f.params_number_elements = 0;
+            functions[table_index] = f;
+        }
+        else
+        {
+            f.are_params = 1;
+            f.params_number_elements = params_number;
+
+            for (int i = 0; i < params_number; i++)
+            {
+                strcpy(f.params_text[i], params[i]);
+            }
+
+            functions[table_index] = f;
+
+            if (addParams(params, functions, table_index, params_number) == 0)
+                return -4; // functia contine mai multi parametrii cu acelasi nume
+        }
+    }
+    else
+    {
+        return -5; // eroare frunctia sau metoda este deja definita in acel scope
+    }
 
     return 0;
 }
@@ -171,11 +545,697 @@ int addFunction(int table_index, char *scope, char *data_type, char *identifier,
 int addType(int table_index, char *identifier, struct types_table types[100])
 {
 
-    // printf("type: %s\n",identifier);
-    // printf("%d",table_index);
+    if (existsType(identifier, types, table_index) == 0)
+    {
+        strcpy(types[table_index].identifier, identifier);
+    }
+    else
+    {
+        return -6; // eroare tipul custom este deja definit
+    }
+}
+
+int symbol_table_file(struct symbol_table symbols[100], int table_index)
+{
+    FILE *file;
+    file = fopen("symbol_table.txt", "w");
+
+    if (file == NULL)
+    {
+        return -7;
+    }
+
+    for (int i = 0; i < table_index; i++)
+    {
+
+        if (symbols[i].is_type == 1)
+        {
+            fprintf(file, "[%d] TIP : %s | ID : %s | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+        }
+        else
+        {
+
+            if (strcmp(symbols[i].data_type, "int") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%d,", symbols[i].int_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].int_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].int_val, symbols[i].scope);
+                    }
+                }
+            }
+
+            else if (strcmp(symbols[i].data_type, "bool") == 0)
+            {
+
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%d,", symbols[i].bool_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].bool_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].bool_val, symbols[i].scope);
+                    }
+                }
+            }
+            else if (strcmp(symbols[i].data_type, "float") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%.2f,", symbols[i].float_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %.2f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %.2f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
+                    }
+                }
+            }
+            else if (strcmp(symbols[i].data_type, "char") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "\'%c\',", symbols[i].char_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : \'%c\' | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].char_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : \'%c\' | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].char_val, symbols[i].scope);
+                    }
+                }
+            }
+            else if (strcmp(symbols[i].data_type, "string") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "\"%s\",", symbols[i].string_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : \"%s\" | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].string_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : \"%s\" | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].string_val, symbols[i].scope);
+                    }
+                }
+            }
+        }
+    }
 
     return 0;
 }
+
+int functions_table_file(struct functions_table functions[100], int table_index)
+{
+    FILE *file;
+    file = fopen("functions_table.txt", "w");
+
+    if (file == NULL)
+    {
+        return -7;
+    }
+
+    for (int i = 0; i < table_index; i++)
+    {
+        fprintf(file, "[%d] RETURN TYPE : %s | ID : %s | SCOPE : %s | ", i, functions[i].data_type, functions[i].identifier, functions[i].scope);
+
+        if (functions[i].are_params == 0)
+        {
+
+            fprintf(file, "PARAMS : {N/A}\n\n");
+        }
+        else
+        {
+            fprintf(file, "PARAMS : (");
+            for (int j = 0; j < functions[i].params_number_elements; j++)
+                fprintf(file, "%s ,", functions[i].params_text[j]);
+            fprintf(file, ")\n\n");
+        }
+    }
+
+    return 0;
+    // TODO functia care creeaza functions_table.txt
+}
+
+int getDataType(struct symbol_table symbols[100], int table_index, char *identifier_eval)
+{ // a, b[10]
+
+    char scope[100];
+
+    char aux[100];
+    strcpy(aux, identifier_eval);
+
+    char identifier[100];
+    char *p = strtok(aux, "[");
+
+    strcpy(identifier, p);
+
+    if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+    {
+        strcpy(scope, "MAIN");
+    }
+    else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+    {
+        strcpy(scope, "GLOBAL");
+    }
+    else
+        return -11; // var nu a fost definita
+
+    for (int i = 0; i < table_index; i++)
+    {
+        if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+        {
+            if (strcmp(symbols[i].data_type, "int") == 0)
+                return 1; // tipul e int
+            else if (strcmp(symbols[i].data_type, "float") == 0)
+                return 2; // tipul e float
+            else
+                return -10; // datatype nu e int sau float
+        }
+    }
+}
+
+int getIntValue(struct symbol_table symbols[100], int table_index, char *identifier_eval)
+{
+    char scope[100];
+    char aux[100];
+    strcpy(aux, identifier_eval);
+
+    char identifier[100];
+    if (strchr(identifier, '[') != NULL)
+    {
+        char *p = strtok(aux, "[]");
+        strcpy(identifier, p);
+
+        strtok(NULL, "[]");
+
+        int int_arr_index = atoi(p);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                {
+                    return symbols[i].int_array_values[int_arr_index];
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        strcpy(identifier, identifier_eval);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                    return symbols[i].int_val;
+                else
+                    return 0;
+            }
+        }
+    }
+}
+
+float getFloatValue(struct symbol_table symbols[100], int table_index, char *identifier_eval)
+{
+    char scope[100];
+    char aux[100];
+    strcpy(aux, identifier_eval);
+
+    char identifier[100];
+    if (strchr(identifier, '[') != NULL)
+    {
+        char *p = strtok(aux, "[]");
+        strcpy(identifier, p);
+
+        strtok(NULL, "[]");
+
+        int int_arr_index = atoi(p);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                {
+                    return symbols[i].float_array_values[int_arr_index];
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        strcpy(identifier, identifier_eval);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                    return symbols[i].float_val;
+                else
+                    return 0;
+            }
+        }
+    }
+}
+
+int CheckEvalSameDataType(struct symbol_table symbols[100], int table_index, char identifiers[100][100], int number_operands)
+{
+
+    char tip_referinta[100] = "N/A";
+    char operand_curent[100];
+
+    for (int i = 0; i < number_operands; i++)
+    {
+        strcpy(operand_curent, identifiers[i]);
+        int aux = getDataType(symbols, table_index, operand_curent);
+
+        if (aux == 1)
+        {
+            if (strcmp(tip_referinta, "N/A") == 0)
+            {
+                strcpy(tip_referinta, "int");
+            }
+
+            else if (strcmp(tip_referinta, "int") != 0)
+            {
+                return 0;
+            }
+        }
+        else if (aux == 2)
+        {
+
+            if (strcmp(tip_referinta, "N/A") == 0)
+            {
+                strcpy(tip_referinta, "float");
+            }
+
+            else if (strcmp(tip_referinta, "float") != 0)
+            {
+                return 0;
+            }
+        }
+        else
+            return aux;
+    }
+
+    return 1;
+}
+
+struct Stack *createStack(unsigned capacity)
+{
+    struct Stack *stack = (struct Stack *)malloc(sizeof(struct Stack));
+
+    if (!stack)
+        return NULL;
+
+    stack->top = -1;
+    stack->capacity = capacity;
+
+    stack->array = (int *)malloc(stack->capacity * sizeof(int));
+
+    return stack;
+}
+
+int isEmpty(struct Stack *stack)
+{
+    return stack->top == -1;
+}
+
+char peek(struct Stack *stack)
+{
+    return stack->array[stack->top];
+}
+
+char pop(struct Stack *stack)
+{
+    if (!isEmpty(stack))
+        return stack->array[stack->top--];
+    return '$';
+}
+
+struct Node *popNode(struct Stack *stack)
+{
+    if (stack->top == -1)
+    {
+        return NULL;
+    }
+
+    return stack->arrayStack[stack->top--];
+}
+
+void push(struct Stack *stack, char op)
+{
+    stack->array[++stack->top] = op;
+}
+
+void pushStS(struct Stack *stack, struct Node *node)
+{
+    stack->arrayStack[++stack->top] = node;
+}
+
+int isOperand(char ch)
+{
+    return (ch >= 'a' && ch <= 'z') ||
+           (ch >= 'A' && ch <= 'Z') ||
+           (ch >= '0' && ch <= '9') ||
+           (ch >= '[' && ch <= ']');
+}
+
+int isNumber(char ch)
+{
+    return (ch >= '0' && ch <= '9');
+}
+
+int isSign(char ch)
+{
+    return ch == '+' || ch == '-' || ch == '*' || ch == '/';
+}
+
+int toDigit(char ch)
+{
+    return ch - '0';
+}
+
+int Prec(char ch)
+{
+    switch (ch)
+    {
+    case '+':
+    case '-':
+        return 1;
+
+    case '*':
+    case '/':
+        return 2;
+    }
+    return -1;
+}
+
+char *infixToPostfix(char *exp)
+{
+    int i, k;
+
+    struct Stack *stack = createStack(strlen(exp));
+    if (!stack)
+        return "Error";
+
+    for (i = 0, k = -1; exp[i]; ++i)
+    {
+
+        if (isOperand(exp[i]))
+            exp[++k] = exp[i];
+        else if (exp[i] == '(')
+            push(stack, exp[i]);
+
+        else if (exp[i] == ')')
+        {
+            while (!isEmpty(stack) && peek(stack) != '(')
+                exp[++k] = pop(stack);
+            if (!isEmpty(stack) && peek(stack) != '(')
+                return "Error";
+            else
+                pop(stack);
+        }
+
+        else
+        {
+            while (!isEmpty(stack) && Prec(exp[i]) <= Prec(peek(stack)))
+                exp[++k] = pop(stack);
+            push(stack, exp[i]);
+        }
+    }
+
+    while (!isEmpty(stack))
+        exp[++k] = pop(stack);
+
+    exp[++k] = '\0';
+
+    return exp;
+}
+
+struct Node *newNode(char data)
+{
+    struct Node *temp = (struct Node *)malloc(sizeof(struct Node));
+
+    temp->info = data;
+    temp->left = NULL;
+    temp->right = NULL;
+
+    return temp;
+}
+
+struct Node *buildTree(char postfix[])
+{
+    struct Stack *stack = createStack(strlen(postfix));
+
+    struct Node *t, *t1, *t2;
+
+    for (int i = 0; i < strlen(postfix); i++)
+    {
+        if (isOperand(postfix[i]))
+        {
+            t = newNode(postfix[i]);
+            pushStS(stack, t);
+        }
+        else if (isSign(postfix[i]))
+        {
+            t = newNode(postfix[i]);
+            t1 = popNode(stack);
+            t2 = popNode(stack);
+
+            t->right = t1;
+            t->left = t2;
+            pushStS(stack, t);
+        }
+        else
+        {
+            printf("Invalid character: %c", postfix[i]);
+        }
+    }
+
+    t = popNode(stack);
+
+    return t;
+}
+
+int evaluate(struct Node *root, struct symbol_table symbols[100], int table_index)
+{
+    if (root == NULL)
+        return 0;
+    if (isNumber(root->info))
+    {
+        return toDigit(root->info);
+    }
+    else if (isOperand(root->info))
+    {
+
+        char aux[100];
+
+        bzero(aux, sizeof(aux));
+
+        sprintf(aux, "%c", root->info);
+
+        int number;
+
+        number = getIntValue(symbols, table_index, aux);
+
+        // printf("%i\n",number);
+
+        return number;
+    }
+
+    int left = evaluate(root->left, symbols, table_index);
+    int right = evaluate(root->right, symbols, table_index);
+
+    // printf("LEFT: %i\n", left);
+    // printf("RIGHT: %i\n", right);
+
+    switch (root->info)
+    {
+    case '+':
+        return left + right;
+    case '-':
+        return left - right;
+    case '*':
+        return left * right;
+    case '/':
+        if (right == 0)
+        {
+            printf("Divide by zero error.");
+            exit(0);
+        }
+        return left / right;
+    }
+
+    return -1;
+}
+
 void removeQuotes(char *str)
 {
     int i, j;
@@ -193,16 +1253,4 @@ void removeQuotes(char *str)
         }
     }
 }
-void Eval(char *expression, int line)
-{
-    removeQuotes(expression);
 
-    infixToPostfix(expression);
-
-    struct Node *root = buildTree(expression);
-
-    printf("%i -> %i\n",evaluate(root), line);
-    // calculateExpression(root);
-
-    // printf("With AST done: %s\n",expression);
-}

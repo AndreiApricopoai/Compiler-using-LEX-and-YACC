@@ -1,32 +1,33 @@
 START:
 
 GLOBAL:
+int x = 10;
+
 int a;
 int b;
-int x = 10;
-int b;
-char b;
 char c;
-int x;
+char asd = 'd';
+int num;
 bool r;
-bool d = true;
-bool e = false;
+bool ddd = true;
+bool eee = false;
 
-
+string aaaaaa[] = {"1111","2222","3333"};
+string nume = "andrei";
 string ss;
 
-float f = 20.5;
-float g;
+float fval = 20.5;
+float fgol;
 
 const int var = 20;
 
 int my_arr[20];
-bool bs[100] = {true,false,true,true};
-float fsir[] = {1.2,2.5,3.0};
+bool bools[100] = {true,false,true,true};
+float floatsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
 
-char test = "\n";
-char test = '\n';
+char test1 = 'a';
+char test2 = '2';
 
 
 TYPE Student student;
@@ -64,17 +65,12 @@ FUNCTIONS:
 
 int func1(int param1, int param2, char param3, const int param4){
 
-    EVAL("k[10]");
     int a;
     return rez;
 }
 
 
-int func2(int p1, int p2, Student student, int a[], int b[100]){
-
-    EVAL("(3+1)*2-9+a+f(a)-m-->c");
-    
-
+int func2(int p1, int p2, Student student, int a[], int ba[100]){
 
 
     if(param1 > param2){
@@ -122,14 +118,13 @@ methods:
             a = 2;
         }
 
-        EVAL("a");
         int a;
         return rez;
     }
 
     bool met2(int param3, int param4){
         bool val; 
-        int a ;
+        int re;
         return val;
     }
 
@@ -138,7 +133,7 @@ methods:
 
 Profesor{
 members:
-
+    
     int mem1;
     int mem2 = 10;
 
@@ -148,15 +143,15 @@ methods:
 
         if(param1 > param2){
             a = 2;
+
         }
 
-        EVAL("b");
         return rez;
     }
 
     bool met2(int param3, int param4){
         bool val; 
-        int a;
+        int as;
         return val;
     }
     }
@@ -170,7 +165,7 @@ END_TYPES
 MAIN:
 
 int a;
-int x = 10;
+int x = 50;
 char b;
 bool r;
 bool d = true;
@@ -186,15 +181,26 @@ int integers[] = {1,2,3,4,5};
 TYPE Student student;
 
 
+
 student-->mem1 = 12;
 student-->met1(a,c);
 
 TypeOf();
-EVAL("a");
+
+int c;
+
+int k = 49;
+
+EVAL("2+2");
+
+x = b + 2;
+
+x = test(test(y+2)+2,f) + (30 - y * arr[2]) - 10;
+
 
 while(c != 0){
 
-    c = c - 1;
+    c = c + 1;
 }
 
 for(c = 1 ; c<10 ; c = c + 1){
