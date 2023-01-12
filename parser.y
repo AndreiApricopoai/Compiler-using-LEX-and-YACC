@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "utilitar.h"
 
 
@@ -467,7 +468,43 @@ statement : assignment SEMICOLON
           | IDENTIFIER ACCES function_call SEMICOLON
           | control_statement
           | TYPEOF LPB typeof_arguments RPB SEMICOLON 
-          | EVAL LPB expression RPB SEMICOLON
+          | EVAL LPB STRING_VALUE RPB SEMICOLON 
+            {
+            if(strcmp(SYMBOL_SCOPE,"MAIN")==0)
+            {          
+                  removeQuotes($3);
+                  char aux[500];
+
+                  strcpy(aux,$3);
+
+                  char finalString[500];
+                  
+                  char simbol[100];
+                  for(int i=0;i<strlen(aux);i++)
+                  {
+                        if(aux[i]=='+' || aux[i]=='-' || aux[i]=='*' || aux[i]=='/')
+                        {
+                              sprintf(simbol,"%c",aux[i]);
+                              strcat(finalString,simbol);
+                        }
+                        else
+                        {
+                              
+                        }
+                  }
+
+                  
+                  
+                  infixToPostfix($3);
+                  struct Node *root = buildTree($3);
+
+                  //andrei+2-f(c)
+                  //5+2-0
+
+                  printf("Eval result: %i\n", evaluate(root,symbols,index_symbols_table));
+                  
+            }
+            }
           | PRINT LPB value RPB SEMICOLON
           ;
                     
@@ -564,7 +601,6 @@ int main(int argc, char** argv){
 /*
 extern int yydebug;
 yydebug = 1;
-
 */
 
 

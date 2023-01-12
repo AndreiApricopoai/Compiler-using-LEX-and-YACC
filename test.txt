@@ -2,6 +2,7 @@ START:
 
 GLOBAL:
 int x = 10;
+
 int a;
 int b;
 char c;
@@ -22,7 +23,7 @@ const int var = 20;
 
 int my_arr[20];
 bool bools[100] = {true,false,true,true};
-float floatsir[] = {11.2,12.5,13.2};
+float floatsir[] = {1.2,2.5,3.0};
 int integers[] = {1,2,3,4,5};
 
 char test1 = 'a';
@@ -36,8 +37,6 @@ END_GLOBAL
 
 
 FUNCTIONS:
-
-    
 
     int func(){
 
@@ -66,15 +65,12 @@ FUNCTIONS:
 
 int func1(int param1, int param2, char param3, const int param4){
 
-    EVAL(a);
     int a;
     return rez;
 }
 
 
 int func2(int p1, int p2, Student student, int a[], int ba[100]){
-
-    EVAL(a);
 
 
     if(param1 > param2){
@@ -118,12 +114,10 @@ methods:
 
     int met1(int param1, int param2){
 
-        int b;
         if(param1 > param2){
-            string c = "b";
+            a = 2;
         }
 
-        EVAL(a);
         int a;
         return rez;
     }
@@ -147,12 +141,11 @@ methods:
 
     int met1(int param1, int param2){
 
-        int a;
         if(param1 > param2){
             a = 2;
+
         }
 
-        EVAL(a);
         return rez;
     }
 
@@ -193,15 +186,25 @@ student-->mem1 = 12;
 student-->met1(a,c);
 
 TypeOf();
-EVAL(a);
+
+int c;
+
+int k = 49;
+
+EVAL("2+2");
+
+x = b + 2;
+
+x = test(test(y+2)+2,f) + (30 - y * arr[2]) - 10;
+
 
 while(c != 0){
 
-    c = c - 1;
+    c = c + 1;
 }
 
 for(c = 1 ; c<10 ; c = c + 1){
-    c = c + 1;
+    int n = 10;
 }
 
 if(c > 20){

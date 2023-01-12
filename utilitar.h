@@ -62,6 +62,21 @@ struct types_table
     char identifier[100];
 };
 
+struct Node
+{
+    char info;
+    struct Node *left;
+    struct Node *right;
+};
+
+struct Stack
+{
+    int top;
+    unsigned capacity;
+    int *array;
+    struct Node *arrayStack[100];
+};
+
 int is_correct_value(char *datatype, char *value)
 {
 
@@ -106,6 +121,7 @@ int is_correct_value(char *datatype, char *value)
 
     return 0;
 }
+
 int are_correct_array_values(char *datatype, char array_values[200][1000], int array_number_elements)
 {
     for (int i = 0; i < array_number_elements; i++)
@@ -115,6 +131,7 @@ int are_correct_array_values(char *datatype, char array_values[200][1000], int a
     }
     return 1;
 }
+
 void addValue(char *datatype, char *value, int index, struct symbol_table symbols[100])
 {
 
@@ -201,6 +218,7 @@ void addArrayValues(char *datatype, char array_values[200][1000], int index, int
         }
     }
 }
+
 void setSymbolScope(int index, int type_index, char scope[100], char *block)
 {
     if (strcmp(block, "functions") == 0)
@@ -483,6 +501,7 @@ int addParams(char params_text[50][1000], struct functions_table functions[100],
 
     return 1;
 }
+
 int addFunction(int table_index, char *scope, char *data_type, char *identifier, struct functions_table functions[100], char params[50][1000], int params_number)
 {
 
@@ -534,6 +553,246 @@ int addType(int table_index, char *identifier, struct types_table types[100])
     {
         return -6; // eroare tipul custom este deja definit
     }
+}
+
+int symbol_table_file(struct symbol_table symbols[100], int table_index)
+{
+    FILE *file;
+    file = fopen("symbol_table.txt", "w");
+
+    if (file == NULL)
+    {
+        return -7;
+    }
+
+    for (int i = 0; i < table_index; i++)
+    {
+
+        if (symbols[i].is_type == 1)
+        {
+            fprintf(file, "[%d] TIP : %s | ID : %s | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+        }
+        else
+        {
+
+            if (strcmp(symbols[i].data_type, "int") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%d,", symbols[i].int_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].int_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].int_val, symbols[i].scope);
+                    }
+                }
+            }
+
+            else if (strcmp(symbols[i].data_type, "bool") == 0)
+            {
+
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%d,", symbols[i].bool_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].bool_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].bool_val, symbols[i].scope);
+                    }
+                }
+            }
+            else if (strcmp(symbols[i].data_type, "float") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%.2f,", symbols[i].float_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %.2f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %.2f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
+                    }
+                }
+            }
+            else if (strcmp(symbols[i].data_type, "char") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "\'%c\',", symbols[i].char_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : \'%c\' | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].char_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : \'%c\' | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].char_val, symbols[i].scope);
+                    }
+                }
+            }
+            else if (strcmp(symbols[i].data_type, "string") == 0)
+            {
+                if (symbols[i].is_array == 1)
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+
+                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
+
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "\"%s\",", symbols[i].string_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
+                    }
+                }
+                else if (symbols[i].is_const == 1)
+                {
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : \"%s\" | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].string_val, symbols[i].scope);
+                }
+                else
+                {
+                    if (symbols[i].are_valoare == 0)
+                    {
+
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
+                    }
+                    else
+                    {
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : \"%s\" | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].string_val, symbols[i].scope);
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int functions_table_file(struct functions_table functions[100], int table_index)
+{
+    FILE *file;
+    file = fopen("functions_table.txt", "w");
+
+    if (file == NULL)
+    {
+        return -7;
+    }
+
+    for (int i = 0; i < table_index; i++)
+    {
+        fprintf(file, "[%d] RETURN TYPE : %s | ID : %s | SCOPE : %s | ", i, functions[i].data_type, functions[i].identifier, functions[i].scope);
+
+        if (functions[i].are_params == 0)
+        {
+
+            fprintf(file, "PARAMS : {N/A}\n\n");
+        }
+        else
+        {
+            fprintf(file, "PARAMS : (");
+            for (int j = 0; j < functions[i].params_number_elements; j++)
+                fprintf(file, "%s ,", functions[i].params_text[j]);
+            fprintf(file, ")\n\n");
+        }
+    }
+
+    return 0;
+    // TODO functia care creeaza functions_table.txt
 }
 
 int getDataType(struct symbol_table symbols[100], int table_index, char *identifier_eval)
@@ -711,29 +970,33 @@ int CheckEvalSameDataType(struct symbol_table symbols[100], int table_index, cha
     char tip_referinta[100] = "N/A";
     char operand_curent[100];
 
-    for(int i = 0 ; i < number_operands ;i++){
+    for (int i = 0; i < number_operands; i++)
+    {
         strcpy(operand_curent, identifiers[i]);
         int aux = getDataType(symbols, table_index, operand_curent);
 
-        if(aux == 1){
-            if(strcmp(tip_referinta,"N/A")==0)
+        if (aux == 1)
+        {
+            if (strcmp(tip_referinta, "N/A") == 0)
             {
-                strcpy(tip_referinta,"int");
+                strcpy(tip_referinta, "int");
             }
-                
-            else if(strcmp(tip_referinta,"int")!=0){
+
+            else if (strcmp(tip_referinta, "int") != 0)
+            {
                 return 0;
             }
-
         }
-        else if(aux == 2){
+        else if (aux == 2)
+        {
 
-            if(strcmp(tip_referinta,"N/A")==0)
+            if (strcmp(tip_referinta, "N/A") == 0)
             {
-                strcpy(tip_referinta,"float");
+                strcpy(tip_referinta, "float");
             }
-                
-            else if(strcmp(tip_referinta,"float")!=0){
+
+            else if (strcmp(tip_referinta, "float") != 0)
+            {
                 return 0;
             }
         }
@@ -741,246 +1004,252 @@ int CheckEvalSameDataType(struct symbol_table symbols[100], int table_index, cha
             return aux;
     }
 
-
     return 1;
 }
 
-int symbol_table_file(struct symbol_table symbols[100], int table_index)
+struct Stack *createStack(unsigned capacity)
 {
-    FILE *file;
-    file = fopen("symbol_table.txt", "w");
+    struct Stack *stack = (struct Stack *)malloc(sizeof(struct Stack));
 
-    if (file == NULL)
-    {
-        return -7;
-    }
+    if (!stack)
+        return NULL;
 
-    for (int i = 0; i < table_index; i++)
-    {
+    stack->top = -1;
+    stack->capacity = capacity;
 
-        if (symbols[i].is_type == 1)
-        {
-            fprintf(file, "[%d] TIP : %s | ID : %s | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-        }
-        else
-        {
+    stack->array = (int *)malloc(stack->capacity * sizeof(int));
 
-            if (strcmp(symbols[i].data_type, "int") == 0)
-            {
-                if (symbols[i].is_array == 1)
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
-
-                        for (int j = 0; j < symbols[i].array_number_elements; j++)
-                            fprintf(file, "%d,", symbols[i].int_array_values[j]);
-                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
-                    }
-                }
-                else if (symbols[i].is_const == 1)
-                {
-                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].int_val, symbols[i].scope);
-                }
-                else
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].int_val, symbols[i].scope);
-                    }
-                }
-            }
-
-            else if (strcmp(symbols[i].data_type, "bool") == 0)
-            {
-
-                if (symbols[i].is_array == 1)
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
-
-                        for (int j = 0; j < symbols[i].array_number_elements; j++)
-                            fprintf(file, "%d,", symbols[i].bool_array_values[j]);
-                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
-                    }
-                }
-                else if (symbols[i].is_const == 1)
-                {
-                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].bool_val, symbols[i].scope);
-                }
-                else
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %d | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].bool_val, symbols[i].scope);
-                    }
-                }
-            }
-            else if (strcmp(symbols[i].data_type, "float") == 0)
-            {
-                if (symbols[i].is_array == 1)
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
-
-                        for (int j = 0; j < symbols[i].array_number_elements; j++)
-                            fprintf(file, "%.1f,", symbols[i].float_array_values[j]);
-                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
-                    }
-                }
-                else if (symbols[i].is_const == 1)
-                {
-                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %.1f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
-                }
-                else
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %.1f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
-                    }
-                }
-            }
-            else if (strcmp(symbols[i].data_type, "char") == 0)
-            {
-                if (symbols[i].is_array == 1)
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
-
-                        for (int j = 0; j < symbols[i].array_number_elements; j++)
-                            fprintf(file, "\'%c\',", symbols[i].char_array_values[j]);
-                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
-                    }
-                }
-                else if (symbols[i].is_const == 1)
-                {
-                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : \'%c\' | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].char_val, symbols[i].scope);
-                }
-                else
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : \'%c\' | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].char_val, symbols[i].scope);
-                    }
-                }
-            }
-            else if (strcmp(symbols[i].data_type, "string") == 0)
-            {
-                if (symbols[i].is_array == 1)
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-
-                        fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
-
-                        for (int j = 0; j < symbols[i].array_number_elements; j++)
-                            fprintf(file, "\"%s\",", symbols[i].string_array_values[j]);
-                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
-                    }
-                }
-                else if (symbols[i].is_const == 1)
-                {
-                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : \"%s\" | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].string_val, symbols[i].scope);
-                }
-                else
-                {
-                    if (symbols[i].are_valoare == 0)
-                    {
-
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : {N/A} | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].scope);
-                    }
-                    else
-                    {
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : \"%s\" | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].string_val, symbols[i].scope);
-                    }
-                }
-            }
-        }
-    }
-
-    return 0;
+    return stack;
 }
 
-int functions_table_file(struct functions_table functions[100], int table_index)
+int isEmpty(struct Stack *stack)
 {
-    FILE *file;
-    file = fopen("functions_table.txt", "w");
+    return stack->top == -1;
+}
 
-    if (file == NULL)
+char peek(struct Stack *stack)
+{
+    return stack->array[stack->top];
+}
+
+char pop(struct Stack *stack)
+{
+    if (!isEmpty(stack))
+        return stack->array[stack->top--];
+    return '$';
+}
+
+struct Node *popNode(struct Stack *stack)
+{
+    if (stack->top == -1)
     {
-        return -7;
+        return NULL;
     }
 
-    for (int i = 0; i < table_index; i++)
+    return stack->arrayStack[stack->top--];
+}
+
+void push(struct Stack *stack, char op)
+{
+    stack->array[++stack->top] = op;
+}
+
+void pushStS(struct Stack *stack, struct Node *node)
+{
+    stack->arrayStack[++stack->top] = node;
+}
+
+int isOperand(char ch)
+{
+    return (ch >= 'a' && ch <= 'z') ||
+           (ch >= 'A' && ch <= 'Z') ||
+           (ch >= '0' && ch <= '9') ||
+           (ch >= '[' && ch <= ']');
+}
+
+int isNumber(char ch)
+{
+    return (ch >= '0' && ch <= '9');
+}
+
+int isSign(char ch)
+{
+    return ch == '+' || ch == '-' || ch == '*' || ch == '/';
+}
+
+int toDigit(char ch)
+{
+    return ch - '0';
+}
+
+int Prec(char ch)
+{
+    switch (ch)
     {
-        fprintf(file, "[%d] RETURN TYPE : %s | ID : %s | SCOPE : %s | ", i, functions[i].data_type, functions[i].identifier, functions[i].scope);
+    case '+':
+    case '-':
+        return 1;
 
-        if (functions[i].are_params == 0)
+    case '*':
+    case '/':
+        return 2;
+    }
+    return -1;
+}
+
+char *infixToPostfix(char *exp)
+{
+    int i, k;
+
+    struct Stack *stack = createStack(strlen(exp));
+    if (!stack)
+        return "Error";
+
+    for (i = 0, k = -1; exp[i]; ++i)
+    {
+
+        if (isOperand(exp[i]))
+            exp[++k] = exp[i];
+        else if (exp[i] == '(')
+            push(stack, exp[i]);
+
+        else if (exp[i] == ')')
         {
+            while (!isEmpty(stack) && peek(stack) != '(')
+                exp[++k] = pop(stack);
+            if (!isEmpty(stack) && peek(stack) != '(')
+                return "Error";
+            else
+                pop(stack);
+        }
 
-            fprintf(file, "PARAMS : {N/A}\n\n");
+        else
+        {
+            while (!isEmpty(stack) && Prec(exp[i]) <= Prec(peek(stack)))
+                exp[++k] = pop(stack);
+            push(stack, exp[i]);
+        }
+    }
+
+    while (!isEmpty(stack))
+        exp[++k] = pop(stack);
+
+    exp[++k] = '\0';
+
+    return exp;
+}
+
+struct Node *newNode(char data)
+{
+    struct Node *temp = (struct Node *)malloc(sizeof(struct Node));
+
+    temp->info = data;
+    temp->left = NULL;
+    temp->right = NULL;
+
+    return temp;
+}
+
+struct Node *buildTree(char postfix[])
+{
+    struct Stack *stack = createStack(strlen(postfix));
+
+    struct Node *t, *t1, *t2;
+
+    for (int i = 0; i < strlen(postfix); i++)
+    {
+        if (isOperand(postfix[i]))
+        {
+            t = newNode(postfix[i]);
+            pushStS(stack, t);
+        }
+        else if (isSign(postfix[i]))
+        {
+            t = newNode(postfix[i]);
+            t1 = popNode(stack);
+            t2 = popNode(stack);
+
+            t->right = t1;
+            t->left = t2;
+            pushStS(stack, t);
         }
         else
         {
-            fprintf(file, "PARAMS : (");
-            for (int j = 0; j < functions[i].params_number_elements; j++)
-                fprintf(file, "%s ,", functions[i].params_text[j]);
-            fprintf(file, ")\n\n");
+            printf("Invalid character: %c", postfix[i]);
         }
     }
 
-    return 0;
-    // TODO functia care creeaza functions_table.txt
+    t = popNode(stack);
+
+    return t;
+}
+
+int evaluate(struct Node *root, struct symbol_table symbols[100], int table_index)
+{
+    if (root == NULL)
+        return 0;
+    if (isNumber(root->info))
+    {
+        return toDigit(root->info);
+    }
+    else if (isOperand(root->info))
+    {
+
+        char aux[100];
+
+        bzero(aux, sizeof(aux));
+
+        sprintf(aux, "%c", root->info);
+
+        int number;
+
+        number = getIntValue(symbols, table_index, aux);
+
+        // printf("%i\n",number);
+
+        return number;
+    }
+
+    int left = evaluate(root->left, symbols, table_index);
+    int right = evaluate(root->right, symbols, table_index);
+
+    // printf("LEFT: %i\n", left);
+    // printf("RIGHT: %i\n", right);
+
+    switch (root->info)
+    {
+    case '+':
+        return left + right;
+    case '-':
+        return left - right;
+    case '*':
+        return left * right;
+    case '/':
+        if (right == 0)
+        {
+            printf("Divide by zero error.");
+            exit(0);
+        }
+        return left / right;
+    }
+
+    return -1;
+}
+
+void removeQuotes(char *str)
+{
+    int i, j;
+    int len = strlen(str);
+    for (i = 0; i < len; i++)
+    {
+        if (str[i] == '"')
+        {
+            for (j = i; j < len; j++)
+            {
+                str[j] = str[j + 1];
+            }
+            len--;
+            i--;
+        }
+    }
 }
