@@ -536,6 +536,215 @@ int addType(int table_index, char *identifier, struct types_table types[100])
     }
 }
 
+int getDataType(struct symbol_table symbols[100], int table_index, char *identifier_eval)
+{ // a, b[10]
+
+    char scope[100];
+
+    char aux[100];
+    strcpy(aux, identifier_eval);
+
+    char identifier[100];
+    char *p = strtok(aux, "[");
+
+    strcpy(identifier, p);
+
+    if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+    {
+        strcpy(scope, "MAIN");
+    }
+    else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+    {
+        strcpy(scope, "GLOBAL");
+    }
+    else
+        return -11; // var nu a fost definita
+
+    for (int i = 0; i < table_index; i++)
+    {
+        if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+        {
+            if (strcmp(symbols[i].data_type, "int") == 0)
+                return 1; // tipul e int
+            else if (strcmp(symbols[i].data_type, "float") == 0)
+                return 2; // tipul e float
+            else
+                return -10; // datatype nu e int sau float
+        }
+    }
+}
+
+int getIntValue(struct symbol_table symbols[100], int table_index, char *identifier_eval)
+{
+    char scope[100];
+    char aux[100];
+    strcpy(aux, identifier_eval);
+
+    char identifier[100];
+    if (strchr(identifier, '[') != NULL)
+    {
+        char *p = strtok(aux, "[]");
+        strcpy(identifier, p);
+
+        strtok(NULL, "[]");
+
+        int int_arr_index = atoi(p);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                {
+                    return symbols[i].int_array_values[int_arr_index];
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        strcpy(identifier, identifier_eval);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                    return symbols[i].int_val;
+                else
+                    return 0;
+            }
+        }
+    }
+}
+
+float getFloatValue(struct symbol_table symbols[100], int table_index, char *identifier_eval)
+{
+    char scope[100];
+    char aux[100];
+    strcpy(aux, identifier_eval);
+
+    char identifier[100];
+    if (strchr(identifier, '[') != NULL)
+    {
+        char *p = strtok(aux, "[]");
+        strcpy(identifier, p);
+
+        strtok(NULL, "[]");
+
+        int int_arr_index = atoi(p);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                {
+                    return symbols[i].float_array_values[int_arr_index];
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
+    }
+    else
+    {
+        strcpy(identifier, identifier_eval);
+
+        if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", identifier, symbols, table_index) == 1)
+        {
+            strcpy(scope, "GLOBAL");
+        }
+        for (int i = 0; i < table_index; i++)
+        {
+            if ((strcmp(identifier, symbols[i].identifier) == 0) && (strcmp(scope, symbols[i].scope) == 0))
+            {
+                if (symbols[i].are_valoare == 1)
+                    return symbols[i].float_val;
+                else
+                    return 0;
+            }
+        }
+    }
+}
+
+int CheckEvalSameDataType(struct symbol_table symbols[100], int table_index, char identifiers[100][100], int number_operands)
+{
+
+    char tip_referinta[100] = "N/A";
+    char operand_curent[100];
+
+    for(int i = 0 ; i < number_operands ;i++){
+        strcpy(operand_curent, identifiers[i]);
+        int aux = getDataType(symbols, table_index, operand_curent);
+
+        if(aux == 1){
+            if(strcmp(tip_referinta,"N/A")==0)
+            {
+                strcpy(tip_referinta,"int");
+            }
+                
+            else if(strcmp(tip_referinta,"int")!=0){
+                return 0;
+            }
+
+        }
+        else if(aux == 2){
+
+            if(strcmp(tip_referinta,"N/A")==0)
+            {
+                strcpy(tip_referinta,"float");
+            }
+                
+            else if(strcmp(tip_referinta,"float")!=0){
+                return 0;
+            }
+        }
+        else
+            return aux;
+    }
+
+
+    return 1;
+}
+
 int symbol_table_file(struct symbol_table symbols[100], int table_index)
 {
     FILE *file;
@@ -645,13 +854,13 @@ int symbol_table_file(struct symbol_table symbols[100], int table_index)
                         fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
 
                         for (int j = 0; j < symbols[i].array_number_elements; j++)
-                            fprintf(file, "%.2f,", symbols[i].float_array_values[j]);
+                            fprintf(file, "%.1f,", symbols[i].float_array_values[j]);
                         fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
                     }
                 }
                 else if (symbols[i].is_const == 1)
                 {
-                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %.2f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
+                    fprintf(file, "[%d] TIP : const %s | ID : %s | VALUE : %.1f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
                 }
                 else
                 {
@@ -662,7 +871,7 @@ int symbol_table_file(struct symbol_table symbols[100], int table_index)
                     }
                     else
                     {
-                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %.2f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
+                        fprintf(file, "[%d] TIP : %s | ID : %s | VALUE : %.1f | SCOPE : %s\n\n", i, symbols[i].data_type, symbols[i].identifier, symbols[i].float_val, symbols[i].scope);
                     }
                 }
             }
@@ -771,7 +980,6 @@ int functions_table_file(struct functions_table functions[100], int table_index)
             fprintf(file, ")\n\n");
         }
     }
-
 
     return 0;
     // TODO functia care creeaza functions_table.txt

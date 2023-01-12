@@ -2,7 +2,6 @@ START:
 
 GLOBAL:
 int x = 10;
-
 int a;
 int b;
 char c;
@@ -23,7 +22,7 @@ const int var = 20;
 
 int my_arr[20];
 bool bools[100] = {true,false,true,true};
-float floatsir[] = {1.2,2.5,3.0};
+float floatsir[] = {11.2,12.5,13.2};
 int integers[] = {1,2,3,4,5};
 
 char test1 = 'a';
@@ -37,6 +36,8 @@ END_GLOBAL
 
 
 FUNCTIONS:
+
+    
 
     int func(){
 
@@ -74,8 +75,6 @@ int func1(int param1, int param2, char param3, const int param4){
 int func2(int p1, int p2, Student student, int a[], int ba[100]){
 
     EVAL(a);
-    
-
 
 
     if(param1 > param2){
@@ -119,8 +118,9 @@ methods:
 
     int met1(int param1, int param2){
 
+        int b;
         if(param1 > param2){
-            a = 2;
+            string c = "b";
         }
 
         EVAL(a);
@@ -147,9 +147,9 @@ methods:
 
     int met1(int param1, int param2){
 
+        int a;
         if(param1 > param2){
             a = 2;
-
         }
 
         EVAL(a);
@@ -201,7 +201,7 @@ while(c != 0){
 }
 
 for(c = 1 ; c<10 ; c = c + 1){
-    int n = 10;
+    c = c + 1;
 }
 
 if(c > 20){
