@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <regex.h>
 #include "utilitar.h"
 
 
@@ -474,34 +475,83 @@ statement : assignment SEMICOLON
             {          
                   removeQuotes($3);
                   char aux[500];
+                  char finalString[500];
+                  char simbol[100];
+                  char varName[100];
+                  char arrayName[100];
 
                   strcpy(aux,$3);
 
-                  char finalString[500];
-                  
-                  char simbol[100];
+                  printf("%s\n",aux);
+                  replace_function_calls(aux);
+
+
+                  int isNumber=0;
+                  int isVar=0;
+                  bzero(finalString,sizeof(finalString));
                   for(int i=0;i<strlen(aux);i++)
                   {
-                        if(aux[i]=='+' || aux[i]=='-' || aux[i]=='*' || aux[i]=='/')
-                        {
+                        if(aux[i]=='+' || aux[i]=='-' || aux[i]=='*' ||
+                           aux[i]=='/' || aux[i]=='(' || aux[i]==')') 
+                           {
+                              if(existsVariable("MAIN",varName,symbols,index_symbols_table)==1)
+                              {
+                                    int stringNumber;
+                                    stringNumber=getIntValue(symbols,index_symbols_table,varName);
+
+                                    char strNumber[100];
+                                    sprintf(strNumber,"%i",stringNumber);
+
+                                    strcat(finalString, strNumber);
+                                    bzero(varName, sizeof(varName));
+                              }
+                              else if(existsVariable("GLOBAL",varName,symbols,index_symbols_table)==1)
+                              {
+                                    int stringNumber;
+                                    stringNumber=getIntValue(symbols,index_symbols_table,varName);
+
+                                    char strNumber[100];
+                                    sprintf(strNumber,"%i",stringNumber);
+                                    
+                                    strcat(finalString, strNumber);
+                                    bzero(varName, sizeof(varName));
+                              }
+                              bzero(varName,sizeof(varName));
                               sprintf(simbol,"%c",aux[i]);
-                              strcat(finalString,simbol);
-                        }
-                        else
-                        {
-                              
-                        }
+                              strcat(finalString, simbol);
+                              isNumber=0;
+                              isVar=0;
+                           }
+                           else if(((aux[i] >= 'a' && aux[i] <= 'z') || (aux[i] >= 'A' && aux[i] <= 'Z')) && isVar == 0)
+                           {
+                              isVar=0;
+                              isNumber=1;
+                              sprintf(simbol,"%c",aux[i]);
+                              strcat(varName, simbol);
+                           }
+                           else if(isdigit(aux[i]) && isNumber == 0 )
+                           {
+                              isVar=1;
+                              isNumber=0;
+                              sprintf(simbol,"%c",aux[i]);
+                              strcat(finalString, simbol);
+                           }
+
+                           //printf("%s - > %i\n",finalString,i);
+                           
                   }
 
+                  printf("%s\n",finalString);
                   
-                  
-                  infixToPostfix($3);
-                  struct Node *root = buildTree($3);
+                  infixToPostfix(finalString);
+
+                  //printf("%s\n",finalString);
+                  struct Node *root = buildTree(finalString);
 
                   //andrei+2-f(c)
                   //5+2-0
 
-                  printf("Eval result: %i\n", evaluate(root,symbols,index_symbols_table));
+                  printf("Eval result: %i\n", evaluate(root));
                   
             }
             }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <regex.h>
 
 struct symbol_table
 {
@@ -1079,7 +1080,7 @@ int isSign(char ch)
 
 int toDigit(char ch)
 {
-    return ch - '0';
+    return ch + '0';
 }
 
 int Prec(char ch)
@@ -1175,7 +1176,7 @@ struct Node *buildTree(char postfix[])
         }
         else
         {
-            printf("Invalid character: %c", postfix[i]);
+            printf("Invalid character: %c\n", postfix[i]);
         }
     }
 
@@ -1184,34 +1185,18 @@ struct Node *buildTree(char postfix[])
     return t;
 }
 
-int evaluate(struct Node *root, struct symbol_table symbols[100], int table_index)
+int evaluate(struct Node *root)
 {
     if (root == NULL)
         return 0;
     if (isNumber(root->info))
     {
-        return toDigit(root->info);
-    }
-    else if (isOperand(root->info))
-    {
-
-        char aux[100];
-
-        bzero(aux, sizeof(aux));
-
-        sprintf(aux, "%c", root->info);
-
-        int number;
-
-        number = getIntValue(symbols, table_index, aux);
-
-        // printf("%i\n",number);
-
-        return number;
+        // printf("%i\n",root->info);
+        return root->info;
     }
 
-    int left = evaluate(root->left, symbols, table_index);
-    int right = evaluate(root->right, symbols, table_index);
+    int left = evaluate(root->left);
+    int right = evaluate(root->right);
 
     // printf("LEFT: %i\n", left);
     // printf("RIGHT: %i\n", right);
@@ -1252,4 +1237,47 @@ void removeQuotes(char *str)
             i--;
         }
     }
+}
+
+void replace_function_calls(char *input)
+{
+    regex_t function_regex;
+    regmatch_t match[1];
+    regcomp(&function_regex, "[_a-zA-Z][_a-zA-Z0-9_]*+\\(", REG_EXTENDED);
+
+    char *output = (char *)malloc(strlen(input) + 1);
+    int output_index = 0;
+    char *start = input;
+    while (*start != '\0')
+    {
+        if (regexec(&function_regex, start, 1, match, 0) == 0)
+        {
+            int match_start = match[0].rm_so + (start - input);
+            int match_end = match[0].rm_eo + (start - input);
+            int copy_length = match_start - (start - input);
+            memcpy(output + output_index, start, copy_length);
+            output_index += copy_length;
+            output[output_index++] = '0';
+            int i = match_end;
+            int open_parenthesis = 1;
+            while (open_parenthesis != 0 && input[i] != '\0')
+            {
+                if (input[i] == '(')
+                    open_parenthesis++;
+                if (input[i] == ')')
+                    open_parenthesis--;
+                i++;
+            }
+            start = input + i;
+        }
+        else
+        {
+            output[output_index++] = *start;
+            start++;
+        }
+    }
+    output[output_index] = '\0';
+    regfree(&function_regex);
+    strcpy(input, output);
+    free(output);
 }
