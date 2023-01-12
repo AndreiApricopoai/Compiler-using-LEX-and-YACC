@@ -36,12 +36,11 @@ struct param
 {
     char data_type[100];
     char identifier[100];
-    // char scope[100];
+
     int is_const;
     int is_array;
     int is_type;
 
-    int array_number_elements;
     int array_allocated_memory;
 };
 
@@ -51,8 +50,11 @@ struct functions_table
     char identifier[100];
     char scope[100];
 
-    int param_index;
+    int are_params;
+
+    int params_number_elements;
     struct param params[50];
+    char params_text[50][1000];
 };
 
 struct types_table
@@ -329,7 +331,7 @@ int addSymbol(int table_index, char *scope, struct symbol_table symbols[100],
             }
             else
             {
-                return -4; // variable has diffrent datatype value in definition
+                return -1; // variable has diffrent datatype value in definition
             }
         }
         else if (is_array == 1)
@@ -357,7 +359,7 @@ int addSymbol(int table_index, char *scope, struct symbol_table symbols[100],
                 if (are_correct_array_values(data_type, array_values, array_number_elements) == 1)
                     addArrayValues(data_type, array_values, table_index, array_number_elements, symbols);
                 else
-                    return -5;
+                    return -2; // valorile din array nu sunt de tipul array-ului
             }
         }
         else
@@ -378,7 +380,7 @@ int addSymbol(int table_index, char *scope, struct symbol_table symbols[100],
                 if (is_correct_value(data_type, value) == 1)
                     addValue(data_type, value, table_index, symbols);
                 else
-                    return -4; // variable has diffrent datatype value in definition
+                    return -1; // variable has diffrent datatype value in definition
             }
         }
     }
@@ -390,15 +392,132 @@ int addSymbol(int table_index, char *scope, struct symbol_table symbols[100],
     return 0;
 }
 
+int addParams(char params_text[50][1000], struct functions_table functions[100], int index, int params_number)
+{
+
+    for (int i = 0; i < params_number; i++)
+    {
+        struct param p;
+
+        char aux[1000];
+        strcpy(aux, params_text[i]);
+
+        if (strstr(aux, "const") != NULL)
+        { // aici avem constante  || const int a;
+
+            p.is_const = 1;
+            p.is_array = 0;
+            p.is_type = 0;
+            p.array_allocated_memory = 0;
+
+            char *pointer = strtok(aux, " ");
+
+            pointer = strtok(NULL, " ");
+            strcpy(p.data_type, pointer);
+
+            pointer = strtok(NULL, " ");
+            strcpy(p.identifier, pointer);
+        }
+        else if ((strchr(aux, '[') == NULL) && (strchr(aux, ']') == NULL))
+        { // aici avem variabile normale ||| int a || Student student
+
+            char *pointer = strtok(aux, " ");
+            strcpy(p.data_type, pointer);
+
+            if ((strcmp(pointer, "int") == 0) || (strcmp(pointer, "bool") == 0) || (strcmp(pointer, "char") == 0) || (strcmp(pointer, "string") == 0) || (strcmp(pointer, "float") == 0))
+            {
+                p.is_const = 0;
+                p.is_array = 0;
+                p.is_type = 0;
+                p.array_allocated_memory = 0;
+            }
+            else
+            {
+                p.is_const = 0;
+                p.is_array = 0;
+                p.is_type = 1;
+                p.array_allocated_memory = 0;
+            }
+
+            pointer = strtok(NULL, " ");
+            strcpy(p.identifier, pointer);
+        }
+        else if ((strchr(aux, '[') != NULL) && (strchr(aux, ']') != NULL))
+        { // aici avem array    || int a[] , int a[100]
+
+            p.is_const = 0;
+            p.is_array = 1;
+            p.is_type = 0;
+
+            char *pointer = strtok(aux, " []");
+            strcpy(p.data_type, pointer);
+
+            pointer = strtok(NULL, " []");
+            strcpy(p.identifier, pointer);
+
+            pointer = strtok(NULL, " []");
+            if (pointer == NULL)
+            {
+                p.array_allocated_memory = 0;
+            }
+            else
+            {
+                int ival = atoi(pointer);
+                p.array_allocated_memory = ival;
+            }
+        }
+
+        // const int param4 || int param1 || int a[] || int b[100]
+
+        functions[index].params[i] = p;
+    }
+
+    for (int n = 0; n < params_number - 1; n++)
+    {
+        for (int m = n + 1; m < params_number; m++)
+        {
+            if (strcmp(functions[index].params[n].identifier, functions[index].params[m].identifier) == 0)
+                return 0;
+        }
+    }
+
+    return 1;
+}
 int addFunction(int table_index, char *scope, char *data_type, char *identifier, struct functions_table functions[100], char params[50][1000], int params_number)
 {
 
     if (existsFunction(scope, identifier, functions, table_index) == 0)
     {
+        struct functions_table f;
+        strcpy(f.data_type, data_type);
+        strcpy(f.identifier, identifier);
+        strcpy(f.scope, scope);
+
+        if (strcmp(params[0], "N/A") == 0)
+        {
+            f.are_params = 0;
+            f.params_number_elements = 0;
+            functions[table_index] = f;
+        }
+        else
+        {
+            f.are_params = 1;
+            f.params_number_elements = params_number;
+
+            for (int i = 0; i < params_number; i++)
+            {
+                strcpy(f.params_text[i], params[i]);
+            }
+
+            functions[table_index] = f;
+
+            if (addParams(params, functions, table_index, params_number) == 0)
+                return -4; // functia contine mai multi parametrii cu acelasi nume
+        }
     }
     else
     {
-        return -2; // eroare frunctia sau metoda este deja definita in acel scope
+        return -5; // eroare frunctia sau metoda este deja definita in acel scope
     }
 
     return 0;
@@ -413,7 +532,7 @@ int addType(int table_index, char *identifier, struct types_table types[100])
     }
     else
     {
-        return -1; // eroare tipul custom este deja definit
+        return -6; // eroare tipul custom este deja definit
     }
 }
 
@@ -424,7 +543,7 @@ int symbol_table_file(struct symbol_table symbols[100], int table_index)
 
     if (file == NULL)
     {
-        return -6;
+        return -7;
     }
 
     for (int i = 0; i < table_index; i++)
@@ -522,12 +641,12 @@ int symbol_table_file(struct symbol_table symbols[100], int table_index)
                     }
                     else
                     {
-                        
+
                         fprintf(file, "[%d] TIP : array %s | ID : %s | VALUE : {", i, symbols[i].data_type, symbols[i].identifier);
 
-                        for(int j = 0 ; j < symbols[i].array_number_elements ; j++)
-                            fprintf(file,"%.2f,",symbols[i].float_array_values[j]);
-                        fprintf(file,"} | SCOPE %s\n\n",symbols[i].scope);
+                        for (int j = 0; j < symbols[i].array_number_elements; j++)
+                            fprintf(file, "%.2f,", symbols[i].float_array_values[j]);
+                        fprintf(file, "} | SCOPE %s\n\n", symbols[i].scope);
                     }
                 }
                 else if (symbols[i].is_const == 1)
@@ -634,6 +753,25 @@ int functions_table_file(struct functions_table functions[100], int table_index)
     {
         return -7;
     }
+
+    for (int i = 0; i < table_index; i++)
+    {
+        fprintf(file, "[%d] RETURN TYPE : %s | ID : %s | SCOPE : %s | ", i, functions[i].data_type, functions[i].identifier, functions[i].scope);
+
+        if (functions[i].are_params == 0)
+        {
+
+            fprintf(file, "PARAMS : {N/A}\n\n");
+        }
+        else
+        {
+            fprintf(file, "PARAMS : (");
+            for (int j = 0; j < functions[i].params_number_elements; j++)
+                fprintf(file, "%s ,", functions[i].params_text[j]);
+            fprintf(file, ")\n\n");
+        }
+    }
+
 
     return 0;
     // TODO functia care creeaza functions_table.txt

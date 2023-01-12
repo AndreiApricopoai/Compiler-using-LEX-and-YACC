@@ -64,6 +64,37 @@ int index_par = 0;
 
 
 
+void showError(int error_code){
+
+    switch (error_code)
+    {
+    case -1:
+        yyerror("valoare variabilei are tip difert fata de cel declarat!"); // variable has diffrent datatype value in definition
+        break;
+    case -2:
+        yyerror("valorile din array au tip diferit fata de cel declarat!"); // valorile din array nu sunt de tipul array-ului
+        break;
+    case -3:
+        yyerror("membrul sau variabila este deja definita cu acest nume in acel scope!"); // eroare variabila sau membrul de tip definit este deja definita in acel scope
+        break;
+    case -4:
+        yyerror("functia contine mai multi parametrii cu acelasi identificator!"); // functia contine mai multi parametrii cu acelasi nume
+        break;
+    case -5:
+        yyerror("metoda sau functia este deja definita in acel scope!"); // eroare frunctia sau metoda este deja definita in acel scope
+        break;
+    case -6:
+        yyerror("tipul este deja definit!"); // eroare tipul custom este deja definit
+        break;
+    case -7:
+        yyerror("eroare la creare symbol_table.txt si functions_table.txt!"); // symbol_table.txt si functions_table.txt
+        break;  
+    
+    default:
+        break;
+    }
+
+}
 
 
 
@@ -180,6 +211,8 @@ block : GLOBAL global_block END_GLOBAL {
       types_position = 0;
       suntem_in_types = 1;
       setSymbolScope(symbol_scope_position, types_position, SYMBOL_SCOPE, "types");
+      setFunctionScope(types_position, FUNCTION_SCOPE,"types");
+
 
 }
       |FUNCTIONS  END_FUNCTIONS{
@@ -188,6 +221,8 @@ block : GLOBAL global_block END_GLOBAL {
       types_position = 0;
       suntem_in_types = 1;
       setSymbolScope(symbol_scope_position, types_position, SYMBOL_SCOPE, "types");
+      setFunctionScope(types_position, FUNCTION_SCOPE,"types");
+
 
 }
       | TYPES types_block END_TYPES {
@@ -216,41 +251,54 @@ declaratii_variabile : declaratie_variabila SEMICOLON
 
 /*o declaratie(declaratie_variabila) poate avea urmatoarele forme*/
 declaratie_variabila : DATA_TYPE IDENTIFIER{
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, UNDEFINED,UNDEFINED_ARRAY,0,0);
       index_symbols_table++;
+      showError(code);
 } 
           | DATA_TYPE IDENTIFIER ASSIGN value{
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, NOT_CONST, $1, $2, $4,UNDEFINED_ARRAY,0,0);
       index_symbols_table++;
+      showError(code);
+
 }      
           | CONST DATA_TYPE IDENTIFIER    {/*thows error*/ yyerror("const without value asociated!");}
           | CONST DATA_TYPE IDENTIFIER ASSIGN value{
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, NOT_ARRAY, IS_CONST, $2, $3, $5, UNDEFINED_ARRAY,0,0);
       index_symbols_table++;
+      showError(code);
+
 }
           | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB{      
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,0);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, UNDEFINED_ARRAY,$4,0);
       index_symbols_table++;
+      showError(code);
+
 }
           | DATA_TYPE IDENTIFIER LSB RSB   {/*throws error array with no space allocated*/ yyerror("error array with no space allocated!");}
 
 
           | DATA_TYPE IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN LCB array_values RCB{
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,$4,index_arr);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,$4,index_arr);
       index_symbols_table++;
       index_arr = 0;
       memset(ARRAY_VALUES,0,200*1000*sizeof(char));
+      showError(code);
+
 }
           | DATA_TYPE IDENTIFIER LSB RSB ASSIGN LCB array_values RCB{
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,0,index_arr);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, NOT_TYPE, IS_ARRAY, NOT_CONST, $1, $2, UNDEFINED, ARRAY_VALUES ,0,index_arr);
       index_symbols_table++;
       index_arr = 0;
       memset(ARRAY_VALUES,0,200*1000*sizeof(char));
+      showError(code);
+
 }
 
           | TYPE IDENTIFIER IDENTIFIER{
-      addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
+      int code = addSymbol(index_symbols_table, SYMBOL_SCOPE, symbols, IS_TYPE, NOT_ARRAY, NOT_CONST, $2, $3, UNDEFINED, UNDEFINED_ARRAY,0,0);
       index_symbols_table++;
+      showError(code);
+
 }
           ;
 
@@ -291,11 +339,12 @@ func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN 
       else
             setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
            
-      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, FUNCTION_PARAMS, index_par);
+      int code = addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, FUNCTION_PARAMS, index_par);
       memset(FUNCTION_PARAMS,0,50*1000*sizeof(char));
 
       index_par = 0;
       index_functions_table++;
+      showError(code);
 
 }
           | DATA_TYPE IDENTIFIER LPB  RPB  LCB statements RETURN expression SEMICOLON RCB{
@@ -306,10 +355,11 @@ func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN 
       else
             setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
 
-      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, NO_PARAMS, 0);
+      int code = addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, NO_PARAMS, 0);
 
       index_par = 0;
       index_functions_table++;
+      showError(code);
      
 }
           | DATA_TYPE IDENTIFIER LPB function_params RPB  LCB  RETURN expression SEMICOLON RCB{
@@ -320,11 +370,12 @@ func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN 
       else
             setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
 
-      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, FUNCTION_PARAMS, index_par);
+      int code = addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, FUNCTION_PARAMS, index_par);
       memset(FUNCTION_PARAMS,0,50*1000*sizeof(char));
 
       index_par = 0;
       index_functions_table++;
+      showError(code);
 
 
 }
@@ -336,10 +387,11 @@ func_decl : DATA_TYPE IDENTIFIER LPB function_params RPB  LCB statements RETURN 
       else
             setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "functions");
            
-      addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, NO_PARAMS, 0);
+      int code = addFunction(index_functions_table, FUNCTION_SCOPE, $1, $2, functions, NO_PARAMS, 0);
 
       index_par = 0;
       index_functions_table++;
+      showError(code);
 }
           ;
 
@@ -451,8 +503,9 @@ type : IDENTIFIER LCB inner_content RCB {
       setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
       setFunctionScope(types_position, FUNCTION_SCOPE,"types");
 
-      addType(index_types_table, $1, types);
+      int code = addType(index_types_table, $1, types);
       index_types_table++;
+      showError(code);
 
 }
      | IDENTIFIER LCB RCB {
@@ -460,8 +513,9 @@ type : IDENTIFIER LCB inner_content RCB {
       setSymbolScope(symbol_scope_position,types_position, SYMBOL_SCOPE, "types");
       setFunctionScope(types_position,FUNCTION_SCOPE,"types");
 
-      addType(index_types_table, $1, types);
+      int code = addType(index_types_table, $1, types);
       index_types_table++;
+      showError(code);
       }
      ;
 
@@ -495,10 +549,6 @@ main_block : statement
 
 %%
 
-
-void showError(int error_code){
-
-}
 
 
 

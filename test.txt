@@ -71,7 +71,7 @@ int func1(int param1, int param2, char param3, const int param4){
 }
 
 
-int func2(int p1, int p2, Student student, int a[], int b[100]){
+int func2(int p1, int p2, Student student, int a[], int ba[100]){
 
     EVAL(a);
     
@@ -139,7 +139,7 @@ methods:
 
 Profesor{
 members:
-
+    
     int mem1;
     int mem2 = 10;
 
@@ -149,6 +149,7 @@ methods:
 
         if(param1 > param2){
             a = 2;
+
         }
 
         EVAL(a);
