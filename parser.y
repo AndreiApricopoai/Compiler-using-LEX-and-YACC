@@ -482,7 +482,7 @@ statement : assignment SEMICOLON
 
                   strcpy(aux,$3);
 
-                  printf("%s\n",aux);
+                  //printf("%s\n",aux);
                   replace_function_calls(aux);
 
 
@@ -541,11 +541,11 @@ statement : assignment SEMICOLON
                            
                   }
 
-                  printf("%s\n",finalString);
+                  //printf("%s\n",finalString);
                   
                   infixToPostfix(finalString);
 
-                  //printf("%s\n",finalString);
+                  printf("%s\n",finalString);
                   struct Node *root = buildTree(finalString);
 
                   //andrei+2-f(c)

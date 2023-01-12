@@ -165,7 +165,7 @@ END_TYPES
 MAIN:
 
 int a;
-int x = 50;
+int x = 3;
 char b;
 bool r;
 bool d = true;
@@ -189,9 +189,9 @@ TypeOf();
 
 int c;
 
-int k[10] = {5,7,2,3};
+int k = 2;
 
-EVAL("(49-k[10])+10");
+EVAL("func1(func2(y))+(9-k*x)+5");
 
 
 x = b + 2;

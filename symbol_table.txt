@@ -66,7 +66,7 @@
 
 [33] TIP : int | ID : a | VALUE : {N/A} | SCOPE : MAIN
 
-[34] TIP : int | ID : x | VALUE : 50 | SCOPE : MAIN
+[34] TIP : int | ID : x | VALUE : 3 | SCOPE : MAIN
 
 [35] TIP : char | ID : b | VALUE : {N/A} | SCOPE : MAIN
 
@@ -96,7 +96,7 @@
 
 [48] TIP : int | ID : c | VALUE : {N/A} | SCOPE : MAIN
 
-[49] TIP : array int | ID : k | VALUE : {5,7,2,3,} | SCOPE MAIN
+[49] TIP : int | ID : k | VALUE : 2 | SCOPE : MAIN
 
 [50] TIP : int | ID : n | VALUE : 10 | SCOPE : MAIN
 

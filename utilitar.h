@@ -1080,7 +1080,7 @@ int isSign(char ch)
 
 int toDigit(char ch)
 {
-    return ch + '0';
+    return ch - '0';
 }
 
 int Prec(char ch)
@@ -1189,17 +1189,14 @@ int evaluate(struct Node *root)
 {
     if (root == NULL)
         return 0;
-    if (isNumber(root->info))
-    {
-        //printf("%i\n",root->info);
-        return root->info;
-    }
+    if (!isSign(root->info))
+        return toDigit(root->info);
 
     int left = evaluate(root->left);
     int right = evaluate(root->right);
 
-    //printf("LEFT: %i\n", left);
-    //printf("RIGHT: %i\n", right);
+    printf("LEFT: %i\n", left);
+    printf("RIGHT: %i\n", right);
 
     switch (root->info)
     {
@@ -1239,16 +1236,19 @@ void removeQuotes(char *str)
     }
 }
 
-void replace_function_calls(char *input) {
+void replace_function_calls(char *input)
+{
     regex_t function_regex;
     regmatch_t match[1];
     regcomp(&function_regex, "[_a-zA-Z][_a-zA-Z0-9_]*+\\(", REG_EXTENDED);
 
-    char *output = (char *) malloc(strlen(input) + 1);
+    char *output = (char *)malloc(strlen(input) + 1);
     int output_index = 0;
     char *start = input;
-    while (*start != '\0') {
-        if (regexec(&function_regex, start, 1, match, 0) == 0) {
+    while (*start != '\0')
+    {
+        if (regexec(&function_regex, start, 1, match, 0) == 0)
+        {
             int match_start = match[0].rm_so + (start - input);
             int match_end = match[0].rm_eo + (start - input);
             int copy_length = match_start - (start - input);
@@ -1257,13 +1257,18 @@ void replace_function_calls(char *input) {
             output[output_index++] = '0';
             int i = match_end;
             int open_parenthesis = 1;
-            while(open_parenthesis != 0 && input[i] != '\0'){
-                if(input[i] == '(') open_parenthesis++;
-                if(input[i] == ')') open_parenthesis--;
+            while (open_parenthesis != 0 && input[i] != '\0')
+            {
+                if (input[i] == '(')
+                    open_parenthesis++;
+                if (input[i] == ')')
+                    open_parenthesis--;
                 i++;
             }
             start = input + i;
-        } else {
+        }
+        else
+        {
             output[output_index++] = *start;
             start++;
         }
