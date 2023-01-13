@@ -182,6 +182,8 @@ TYPE Student student;
 student-->mem1 = 12;
 student-->met1(a,c);
 
+integers[2] = 5;
+
 TypeOf("fsir[1] + fsir[1]");
 
 int c;

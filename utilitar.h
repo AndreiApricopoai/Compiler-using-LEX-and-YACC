@@ -1393,8 +1393,27 @@ int assign(char *left, char *right, int left_forma, int right_forma, struct symb
         char aux[100];
         strcpy(aux, left);
 
-        char auxLeft[100];
-        char stringIndex[50];
+        if (strstr(aux, "[") != 0)
+        {
+            char auxLeft[100];
+            char stringIndex[50];
+            char *p = strtok(aux, "[]");
+            strcpy(auxLeft, p);
+            p = strtok(NULL, "[]");
+            
+            if (existsVariable("MAIN", left, symbols, table_index) == 1)
+            {
+                strcpy(left_scope, "MAIN");
+            }
+            else if (existsVariable("GLOBAL", left, symbols, table_index) == 1)
+            {
+                strcpy(left_scope, "GLOBAL");
+            }
+            else
+            {
+                return -15; // nu exista variabila a definita
+            }
+        }
     }
     else if (left_forma == 1 && right_forma == 2)
     {
@@ -1661,7 +1680,7 @@ int assign(char *left, char *right, int left_forma, int right_forma, struct symb
 
         int arrayIndexRight = atoi(stringIndexRight);
 
-        //printf("RIGHT:%i\n", arrayIndexRight);
+        // printf("RIGHT:%i\n", arrayIndexRight);
         char aux1[100];
         strcpy(aux1, left);
 
@@ -1669,14 +1688,14 @@ int assign(char *left, char *right, int left_forma, int right_forma, struct symb
         char stringIndexLeft[50];
 
         p = strtok(aux1, "[]");
-        //printf("P:%s\n",p);
+        // printf("P:%s\n",p);
         strcpy(auxLeft, p);
         p = strtok(NULL, "[]");
         strcpy(stringIndexLeft, p);
 
         int arrayIndexLeft = atoi(stringIndexLeft);
 
-        //printf("LEFT:%i\n", arrayIndexLeft);
+        // printf("LEFT:%i\n", arrayIndexLeft);
 
         if (existsVariable("MAIN", auxLeft, symbols, table_index) == 1)
         {
