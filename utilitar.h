@@ -1393,13 +1393,68 @@ int assign(char *left, char *right, int left_forma, int right_forma, struct symb
         char aux[100];
         strcpy(aux, left);
 
-        char auxLeft[100];
-        char stringIndex[50];
+        if (strstr(aux, "[") != 0)
+        {
+            char auxLeft[100];
+            char stringIndex[50];
+            char *p = strtok(aux, "[]");
+            strcpy(auxLeft, p);
+            p = strtok(NULL, "[]");
+            strcpy(stringIndex, p);
 
-  
+            int arrIndex = atoi(stringIndex);
 
+            if (existsVariable("MAIN", auxLeft, symbols, table_index) == 1)
+            {
+                strcpy(left_scope, "MAIN");
+            }
+            else if (existsVariable("GLOBAL", auxLeft, symbols, table_index) == 1)
+            {
+                strcpy(left_scope, "GLOBAL");
+            }
+            else
+            {
+                return -15; // nu exista variabila a definita
+            }
 
+            for (int i = 0; i < table_index; i++)
+            {
+                if (strcmp(auxLeft, symbols[i].identifier) == 0 && strcmp(left_scope, symbols[i].scope))
+                {
+                    if (strcmp(symbols[i].data_type, getDataTypeFromValue(right)) == 0)
+                    {
 
+                        symbols[i].are_valoare = 1;
+                        symbols[i].int_array_values[arrIndex] = atoi(right);
+                        symbols[i].float_array_values[arrIndex] = atof(right);
+                        if (strcmp(right, "true") == 0)
+                        {
+                            symbols[i].bool_array_values[arrIndex] = 1;
+                        }
+                        else
+                        {
+                            symbols[i].bool_array_values[arrIndex] = 0;
+                        }
+                        symbols[i].char_array_values[arrIndex] = right[1];
+
+                        int len = strlen(right);
+                        if (len > 0)
+                            right++;
+                        if (len > 1)
+                            right[len - 2] = '\0';
+
+                        strcpy(symbols[i].string_array_values[arrIndex],right);
+
+                        printf("%s : %d\n", symbols[i].identifier, symbols[i].int_array_values[arrIndex]);
+                        return 0;
+                    }
+                    else
+                    {
+                        return -16; // au tipuri de date diferite
+                    }
+                }
+            }
+        }
     }
     else if (left_forma == 1 && right_forma == 2)
     {
@@ -1666,22 +1721,22 @@ int assign(char *left, char *right, int left_forma, int right_forma, struct symb
 
         int arrayIndexRight = atoi(stringIndexRight);
 
-
-
-
-
+        // printf("RIGHT:%i\n", arrayIndexRight);
         char aux1[100];
-        strcpy(aux1, right);
+        strcpy(aux1, left);
 
         char auxLeft[100];
         char stringIndexLeft[50];
 
         p = strtok(aux1, "[]");
+        // printf("P:%s\n",p);
         strcpy(auxLeft, p);
         p = strtok(NULL, "[]");
         strcpy(stringIndexLeft, p);
 
         int arrayIndexLeft = atoi(stringIndexLeft);
+
+        // printf("LEFT:%i\n", arrayIndexLeft);
 
         if (existsVariable("MAIN", auxLeft, symbols, table_index) == 1)
         {
@@ -1729,16 +1784,15 @@ int assign(char *left, char *right, int left_forma, int right_forma, struct symb
         if (strcmp(symbols[index1].data_type, symbols[index2].data_type) == 0)
         {
 
-                symbols[index1].are_valoare = 1;
+            symbols[index1].are_valoare = 1;
 
-                symbols[index1].int_array_values[arrayIndexLeft] = symbols[index2].int_array_values[arrayIndexRight];
-                symbols[index1].float_array_values[arrayIndexLeft] = symbols[index2].float_array_values[arrayIndexRight];
-                symbols[index1].bool_array_values[arrayIndexLeft] = symbols[index2].bool_array_values[arrayIndexRight];
-                symbols[index1].char_array_values[arrayIndexLeft] = symbols[index2].char_array_values[arrayIndexRight];
-                strcpy(symbols[index1].string_array_values[arrayIndexLeft], symbols[index2].string_array_values[arrayIndexRight]);
+            symbols[index1].int_array_values[arrayIndexLeft] = symbols[index2].int_array_values[arrayIndexRight];
+            symbols[index1].float_array_values[arrayIndexLeft] = symbols[index2].float_array_values[arrayIndexRight];
+            symbols[index1].bool_array_values[arrayIndexLeft] = symbols[index2].bool_array_values[arrayIndexRight];
+            symbols[index1].char_array_values[arrayIndexLeft] = symbols[index2].char_array_values[arrayIndexRight];
+            strcpy(symbols[index1].string_array_values[arrayIndexLeft], symbols[index2].string_array_values[arrayIndexRight]);
 
-                printf("%s : %d\n", symbols[index1].identifier, symbols[index1].int_array_values[arrayIndexLeft]);
-            
+            printf("%s : %d\n", symbols[index1].identifier, symbols[index1].int_array_values[arrayIndexLeft]);
         }
         else
             return -16; // au tipuri de date diferite

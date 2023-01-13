@@ -203,10 +203,10 @@ int rev[50] = {0,1,2,3,4,5};
 
 
 
-EVAL("(integers[0])");
+EVAL("integers[0]");
 integers[0] = rev[4];
 
-EVAL("(integers[0])");
+EVAL("integers[0]");
 
 
 
