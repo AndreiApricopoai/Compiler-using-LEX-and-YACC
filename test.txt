@@ -6,7 +6,6 @@ int x = 10;
 int a;
 int b;
 char c;
-char asd = 'd';
 int num;
 bool r;
 bool ddd = true;
@@ -19,7 +18,6 @@ string ss;
 float fval = 20.5;
 float fgol;
 
-const int var = 20;
 
 int my_arr[20];
 bool bools[100] = {true,false,true,true};
@@ -80,12 +78,11 @@ int func2(int p1, int p2, Student student, int a[], int ba[100]){
 
     while(c != 0){
 
-    c = c - 1;
+    c = EVAL("c-1");
     }
 
     return rez;
 }
-
 
 
 
@@ -198,22 +195,33 @@ int j[] = {3,5};
 
 EVAL("(5+j[0])*x+5/5+func1(func2(y))");
 
+var = 9;
 
-x = b + 2;
+EVAL("(var+2)");
 
-x = test(test(y+2)+2,f) + (30 - y * arr[2]) - 10;
+int rev[50] = {0,1,2,3,4,5};
+
+
+
+EVAL("(integers[0])");
+integers[0] = rev[4];
+
+EVAL("(integers[0])");
+
+
 
 
 while(c != 0){
 
-    c = c + 1;
 }
+
 
 for(c = 1 ; c<10 ; c = c + 1){
     int n = 10;
 }
 
 if(c > 20){
+    int A;
     A = 0;
 }
 

@@ -91,6 +91,15 @@ void showError(int error_code){
     case -7:
         yyerror("eroare la creare symbol_table.txt si functions_table.txt!"); // symbol_table.txt si functions_table.txt
         break;  
+    case -15:
+        yyerror("variabila este utilizata dar nu este definita nicaieri!"); // asignare
+        break; 
+    case -16:
+        yyerror("variabilele au tipuri de date diferite!"); // asignare
+        break; 
+    case -20:
+        yyerror("se incearca atrbuirea unei valori catre variabila const!"); // asignare
+        break; 
     
     default:
         break;
@@ -143,7 +152,6 @@ float float_value;
 %token FOR
 %token WHILE
 %token RETURN
-%token PRINT
 
 %token ASSIGN
 %token <string_value> ARITHMETIC_OPERATOR
@@ -166,6 +174,7 @@ float float_value;
 
 %type<string_value>value
 %type<string_value>func_param
+%type<string_value>leftexp
 
 
 
@@ -439,12 +448,16 @@ control_statement : IF LPB conditions RPB  LCB statements  RCB
                   | IF LPB conditions RPB  LCB  RCB ELSE LCB  RCB
                   | WHILE LPB conditions RPB  LCB statements  RCB
                   | WHILE LPB conditions RPB  LCB  RCB
-                  | FOR LPB assignment SEMICOLON conditions SEMICOLON assignment RPB  LCB statements  RCB
-                  | FOR LPB assignment SEMICOLON conditions SEMICOLON assignment RPB  LCB   RCB
+                  | FOR LPB condition_assignment SEMICOLON conditions SEMICOLON condition_assignment RPB  LCB statements  RCB
+                  | FOR LPB condition_assignment SEMICOLON conditions SEMICOLON condition_assignment RPB  LCB   RCB
                   | FOR LPB  SEMICOLON  SEMICOLON  RPB  LCB statements  RCB
                   | FOR LPB  SEMICOLON  SEMICOLON  RPB  LCB   RCB
                   ;
 
+condition_assignment: IDENTIFIER ASSIGN expression 
+                    | IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN expression
+                    | IDENTIFIER ACCES IDENTIFIER ASSIGN expression
+                    ;
 
 conditions : condition
            | NOT LPB conditions RPB
@@ -752,15 +765,96 @@ statement : assignment SEMICOLON
                   
             }
             }
-          | PRINT LPB value RPB SEMICOLON
           ;
                     
               
 
-assignment : IDENTIFIER ASSIGN expression 
-           | IDENTIFIER LSB INTEGER_VALUE RSB ASSIGN expression
-           | IDENTIFIER ACCES IDENTIFIER ASSIGN expression
+assignment : leftexp ASSIGN value{
+
+      if(strcmp($1,"N/A") != 0){
+
+            if($1[strlen($1)-1] == 'V'){
+                  $1[strlen($1)-1] = '\0';
+                  int res = assign($1,$3, 1 , 1,symbols,index_symbols_table);
+                  showError(res);
+
+
+
+            }
+            else if($1[strlen($1)-1] == 'A'){
+                  $1[strlen($1)-1] = '\0';
+                  int res = assign($1,$3, 2 , 1,symbols,index_symbols_table) ;
+                  showError(res);
+            }
+      }
+} 
+           | leftexp ASSIGN IDENTIFIER{
+
+      if(strcmp($1,"N/A") !=0){
+
+            if($1[strlen($1)-1] == 'V'){
+                  $1[strlen($1)-1] = '\0';
+                  int res = assign($1,$3, 1 , 2,symbols,index_symbols_table);
+                  showError(res);
+                  
+
+            }
+            else if($1[strlen($1)-1] == 'A'){
+                  $1[strlen($1)-1] = '\0';
+                  int res = assign($1,$3, 2 , 2,symbols,index_symbols_table);
+                  showError(res);
+            }
+      }
+}
+           | leftexp ASSIGN IDENTIFIER LSB INTEGER_VALUE RSB{
+
+      if(strcmp($1,"N/A") !=0){
+
+            char aux[100];
+            char intToString[50];
+
+            strcpy(aux,$3); strcat(aux,"["); 
+            sprintf(intToString,"%d",$5);
+            strcat(aux,intToString); 
+            strcat(aux,"]");
+            
+
+            if($1[strlen($1)-1] == 'V'){
+                  $1[strlen($1)-1] = '\0';
+                  int res = assign($1,aux, 1 , 3,symbols,index_symbols_table);
+                  showError(res);
+
+            }
+            else if($1[strlen($1)-1] == 'A'){
+                  $1[strlen($1)-1] = '\0';
+                  int res = assign($1,aux, 2 , 3,symbols,index_symbols_table);
+                  showError(res);
+            }
+      }
+}
+           | leftexp ASSIGN EVAL LPB STRING_VALUE RPB{
+
+      if(strcmp($1,"N/A") !=0){
+            //asteptam functia EVAL();
+
+      }
+}
+           | leftexp ASSIGN IDENTIFIER ACCES IDENTIFIER //nimic
+           | leftexp ASSIGN IDENTIFIER ACCES function_call //nimic
            ;
+
+leftexp : IDENTIFIER {strcpy($$,$1); strcat($$,"V");}
+        | IDENTIFIER LSB INTEGER_VALUE RSB {
+            strcpy($$,$1); strcat($$,"["); 
+            char aux[100];
+            sprintf(aux,"%d",$3);
+            strcat($$,aux); 
+            strcat($$,"]");
+            strcat($$,"A");
+            }
+        | IDENTIFIER ACCES IDENTIFIER {strcat($$,"N/A");}
+        ;
+
 
 
 expression : value
@@ -772,6 +866,9 @@ expression : value
            | LPB expression RPB
            | expression ARITHMETIC_OPERATOR expression
            ;
+
+
+
 
 types_block : type
       | types_block type
