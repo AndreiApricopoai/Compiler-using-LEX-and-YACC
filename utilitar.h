@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <regex.h>
+#include <ctype.h>
 
 struct symbol_table
 {
@@ -841,14 +842,26 @@ int getIntValue(struct symbol_table symbols[100], int table_index, char *identif
     strcpy(aux, identifier_eval);
 
     char identifier[100];
-    if (strchr(identifier, '[') != NULL)
+    int int_arr_index;
+
+    if (strchr(identifier_eval, '[') != 0)
     {
         char *p = strtok(aux, "[]");
+        bzero(identifier, sizeof(identifier));
         strcpy(identifier, p);
 
-        strtok(NULL, "[]");
+        for (int i = 0; i < strlen(identifier_eval); i++)
+        {
+            if (isdigit(identifier_eval[i]))
+            {
+                int_arr_index = identifier_eval[i] - '0';
+            }
+        }
 
-        int int_arr_index = atoi(p);
+        strtok(NULL, "[]");
+        // printf("INDEX: %s\n", p);
+
+        // printf("%i\n",int_arr_index);
 
         if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
         {
@@ -865,6 +878,7 @@ int getIntValue(struct symbol_table symbols[100], int table_index, char *identif
             {
                 if (symbols[i].are_valoare == 1)
                 {
+                    // printf("VAL: %i\n",symbols[i].int_array_values[int_arr_index]);
                     return symbols[i].int_array_values[int_arr_index];
                 }
                 else
@@ -1080,7 +1094,7 @@ int isSign(char ch)
 
 int toDigit(char ch)
 {
-    return ch + '0';
+    return ch - '0';
 }
 
 int Prec(char ch)
@@ -1133,7 +1147,9 @@ char *infixToPostfix(char *exp)
     }
 
     while (!isEmpty(stack))
+    {
         exp[++k] = pop(stack);
+    }
 
     exp[++k] = '\0';
 
@@ -1189,11 +1205,8 @@ int evaluate(struct Node *root)
 {
     if (root == NULL)
         return 0;
-    if (isNumber(root->info))
-    {
-        // printf("%i\n",root->info);
-        return root->info;
-    }
+    if (!isSign(root->info))
+        return toDigit(root->info);
 
     int left = evaluate(root->left);
     int right = evaluate(root->right);
@@ -1228,6 +1241,24 @@ void removeQuotes(char *str)
     for (i = 0; i < len; i++)
     {
         if (str[i] == '"')
+        {
+            for (j = i; j < len; j++)
+            {
+                str[j] = str[j + 1];
+            }
+            len--;
+            i--;
+        }
+    }
+}
+
+void removeBracket(char *str)
+{
+    int i, j;
+    int len = strlen(str);
+    for (i = 0; i < len; i++)
+    {
+        if (str[i] == '[' || str[i] == ']')
         {
             for (j = i; j < len; j++)
             {
@@ -1280,4 +1311,438 @@ void replace_function_calls(char *input)
     regfree(&function_regex);
     strcpy(input, output);
     free(output);
+}
+
+char *getDataTypeFromValue(char *value)
+{
+    char *datatype = (char *)malloc(100 * sizeof(char));
+
+    if (is_correct_value("int", value) == 1)
+    {
+        strcpy(datatype, "int");
+        return datatype;
+    }
+    if (is_correct_value("float", value) == 1)
+    {
+        strcpy(datatype, "float");
+        return datatype;
+    }
+    if (is_correct_value("string", value) == 1)
+    {
+        strcpy(datatype, "string");
+        return datatype;
+    }
+    if (is_correct_value("char", value) == 1)
+    {
+        strcpy(datatype, "char");
+        return datatype;
+    }
+    if (is_correct_value("bool", value) == 1)
+    {
+        strcpy(datatype, "bool");
+        return datatype;
+    }
+}
+
+int assign(char *left, char *right, int left_forma, int right_forma, struct symbol_table symbols[100], int table_index)
+{
+
+    if (left_forma == 1 && right_forma == 1)
+    {
+        // a = 10;
+        char left_scope[100];
+        if (existsVariable("MAIN", left, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", left, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(left, symbols[i].identifier) == 0 && strcmp(left_scope, symbols[i].scope))
+            {
+                if (strcmp(symbols[i].data_type, getDataTypeFromValue(right)) == 0)
+                {
+                    if (symbols[i].is_const == 1)
+                        return -20;
+
+                    symbols[i].are_valoare = 1;
+                    addValue(symbols[i].data_type, right, i, symbols);
+                    printf("%s : %d\n", symbols[i].identifier, symbols[i].int_val);
+                    return 0;
+                }
+                else
+                {
+                    return -16; // au tipuri de date diferite
+                }
+            }
+        }
+    }
+    else if (left_forma == 2 && right_forma == 1)
+    {
+        // a[10] = 10;
+        char left_scope[100];
+
+        char aux[100];
+        strcpy(aux, left);
+
+        char auxLeft[100];
+        char stringIndex[50];
+
+  
+
+
+
+    }
+    else if (left_forma == 1 && right_forma == 2)
+    {
+
+        // a = b
+        char left_scope[100];
+        char right_scope[100];
+
+        if (existsVariable("MAIN", left, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", left, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        if (existsVariable("MAIN", right, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", right, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        int index1, index2;
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(left, symbols[i].identifier) == 0)
+            {
+                index1 = i;
+            }
+        }
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(right, symbols[i].identifier) == 0)
+            {
+                index2 = i;
+            }
+        }
+
+        if (strcmp(symbols[index1].data_type, symbols[index2].data_type) == 0)
+        {
+
+            if (symbols[index1].is_const == 1)
+            {
+                return -20;
+            } // atribuire catre const
+            else
+            {
+
+                symbols[index1].are_valoare = 1;
+                symbols[index1].int_val = symbols[index2].int_val;
+                symbols[index1].float_val = symbols[index2].float_val;
+                symbols[index1].bool_val = symbols[index2].bool_val;
+                symbols[index1].char_val = symbols[index2].char_val;
+                strcpy(symbols[index1].string_val, symbols[index2].string_val);
+
+                printf("%s : %d\n", symbols[index1].identifier, symbols[index1].int_val);
+            }
+        }
+        else
+            return -16; // au tipuri de date diferite
+    }
+    else if (left_forma == 2 && right_forma == 2)
+    {
+        // a[10] = b
+
+        char left_scope[100];
+        char right_scope[100];
+
+        char aux[100];
+        strcpy(aux, left);
+
+        char auxLeft[100];
+        char stringIndex[50];
+
+        char *p = strtok(aux, "[]");
+        strcpy(auxLeft, p);
+        p = strtok(NULL, "[]");
+        strcpy(stringIndex, p);
+
+        int arrayIndex = atoi(stringIndex);
+
+        if (existsVariable("MAIN", auxLeft, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", auxLeft, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        if (existsVariable("MAIN", right, symbols, table_index) == 1)
+        {
+            strcpy(right_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", right, symbols, table_index) == 1)
+        {
+            strcpy(right_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        int index1, index2;
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(auxLeft, symbols[i].identifier) == 0 && strcmp(left_scope, symbols[i].scope) == 0)
+            {
+                index1 = i;
+            }
+        }
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(right, symbols[i].identifier) == 0 && strcmp(right_scope, symbols[i].scope) == 0)
+            {
+                index2 = i;
+            }
+        }
+        if (strcmp(symbols[index1].data_type, symbols[index2].data_type) == 0)
+        {
+
+            if (symbols[index1].is_const == 1)
+            {
+                return -20;
+            } // atribuire catre const
+            else
+            {
+
+                symbols[index1].are_valoare = 1;
+
+                symbols[index1].int_array_values[arrayIndex] = symbols[index2].int_val;
+                symbols[index1].float_array_values[arrayIndex] = symbols[index2].float_val;
+                symbols[index1].bool_array_values[arrayIndex] = symbols[index2].bool_val;
+                symbols[index1].char_array_values[arrayIndex] = symbols[index2].char_val;
+                strcpy(symbols[index1].string_array_values[arrayIndex], symbols[index2].string_val);
+
+                printf("%s : %d\n", symbols[index1].identifier, symbols[index1].int_array_values[arrayIndex]);
+            }
+        }
+        else
+            return -16; // au tipuri de date diferite
+    }
+    else if (left_forma == 1 && right_forma == 3)
+    {
+        // a = b[10]
+        char left_scope[100];
+        char right_scope[100];
+
+        char aux[100];
+        strcpy(aux, right);
+
+        char auxRight[100];
+        char stringIndex[50];
+
+        char *p = strtok(aux, "[]");
+        strcpy(auxRight, p);
+        p = strtok(NULL, "[]");
+        strcpy(stringIndex, p);
+
+        int arrayIndex = atoi(stringIndex);
+
+        if (existsVariable("MAIN", left, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", left, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        if (existsVariable("MAIN", auxRight, symbols, table_index) == 1)
+        {
+            strcpy(right_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", auxRight, symbols, table_index) == 1)
+        {
+            strcpy(right_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        int index1, index2;
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(left, symbols[i].identifier) == 0 && strcmp(symbols[i].scope, left_scope) == 0)
+            {
+                index1 = i;
+            }
+        }
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(auxRight, symbols[i].identifier) == 0 && strcmp(symbols[i].scope, right_scope) == 0)
+            {
+                index2 = i;
+            }
+        }
+
+        if (strcmp(symbols[index1].data_type, symbols[index2].data_type) == 0)
+        {
+
+            if (symbols[index1].is_const == 1)
+            {
+                return -20;
+            } // atribuire catre const
+            else
+            {
+
+                symbols[index1].are_valoare = 1;
+
+                symbols[index1].int_val = symbols[index2].int_array_values[arrayIndex];
+                symbols[index1].float_val = symbols[index2].float_array_values[arrayIndex];
+                symbols[index1].bool_val = symbols[index2].bool_array_values[arrayIndex];
+                symbols[index1].char_val = symbols[index2].char_array_values[arrayIndex];
+                strcpy(symbols[index1].string_val, symbols[index2].string_array_values[arrayIndex]);
+
+                printf("%s : %d\n", symbols[index1].identifier, symbols[index1].int_val);
+            }
+        }
+        else
+            return -16; // au tipuri de date diferite
+    }
+    else if (left_forma == 2 && right_forma == 3)
+    {
+        // a[10] = b[10]
+
+        char left_scope[100];
+        char right_scope[100];
+
+        char aux2[100];
+        strcpy(aux2, right);
+
+        char auxRight[100];
+        char stringIndexRight[50];
+
+        char *p = strtok(aux2, "[]");
+        strcpy(auxRight, p);
+        p = strtok(NULL, "[]");
+        strcpy(stringIndexRight, p);
+
+        int arrayIndexRight = atoi(stringIndexRight);
+
+
+
+
+
+        char aux1[100];
+        strcpy(aux1, right);
+
+        char auxLeft[100];
+        char stringIndexLeft[50];
+
+        p = strtok(aux1, "[]");
+        strcpy(auxLeft, p);
+        p = strtok(NULL, "[]");
+        strcpy(stringIndexLeft, p);
+
+        int arrayIndexLeft = atoi(stringIndexLeft);
+
+        if (existsVariable("MAIN", auxLeft, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", auxLeft, symbols, table_index) == 1)
+        {
+            strcpy(left_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        if (existsVariable("MAIN", auxRight, symbols, table_index) == 1)
+        {
+            strcpy(right_scope, "MAIN");
+        }
+        else if (existsVariable("GLOBAL", auxRight, symbols, table_index) == 1)
+        {
+            strcpy(right_scope, "GLOBAL");
+        }
+        else
+        {
+            return -15; // nu exista variabila a definita
+        }
+
+        int index1, index2;
+
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(auxLeft, symbols[i].identifier) == 0 && strcmp(symbols[i].scope, left_scope) == 0)
+            {
+                index1 = i;
+            }
+        }
+        for (int i = 0; i < table_index; i++)
+        {
+            if (strcmp(auxRight, symbols[i].identifier) == 0 && strcmp(symbols[i].scope, right_scope) == 0)
+            {
+                index2 = i;
+            }
+        }
+
+        if (strcmp(symbols[index1].data_type, symbols[index2].data_type) == 0)
+        {
+
+                symbols[index1].are_valoare = 1;
+
+                symbols[index1].int_array_values[arrayIndexLeft] = symbols[index2].int_array_values[arrayIndexRight];
+                symbols[index1].float_array_values[arrayIndexLeft] = symbols[index2].float_array_values[arrayIndexRight];
+                symbols[index1].bool_array_values[arrayIndexLeft] = symbols[index2].bool_array_values[arrayIndexRight];
+                symbols[index1].char_array_values[arrayIndexLeft] = symbols[index2].char_array_values[arrayIndexRight];
+                strcpy(symbols[index1].string_array_values[arrayIndexLeft], symbols[index2].string_array_values[arrayIndexRight]);
+
+                printf("%s : %d\n", symbols[index1].identifier, symbols[index1].int_array_values[arrayIndexLeft]);
+            
+        }
+        else
+            return -16; // au tipuri de date diferite
+    }
+
+    return 0;
 }

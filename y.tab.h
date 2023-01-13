@@ -39,7 +39,7 @@
 # define YY_YY_Y_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -82,21 +82,20 @@ extern int yydebug;
     FOR = 283,                     /* FOR  */
     WHILE = 284,                   /* WHILE  */
     RETURN = 285,                  /* RETURN  */
-    PRINT = 286,                   /* PRINT  */
-    ASSIGN = 287,                  /* ASSIGN  */
-    ARITHMETIC_OPERATOR = 288,     /* ARITHMETIC_OPERATOR  */
-    RELATIONAL_OPERATOR = 289,     /* RELATIONAL_OPERATOR  */
-    SEMICOLON = 290,               /* SEMICOLON  */
-    NOT = 291,                     /* NOT  */
-    COMMA = 292,                   /* COMMA  */
-    LSB = 293,                     /* LSB  */
-    RSB = 294,                     /* RSB  */
-    LCB = 295,                     /* LCB  */
-    RCB = 296,                     /* RCB  */
-    RPB = 297,                     /* RPB  */
-    LPB = 298,                     /* LPB  */
-    BOOLEAN_OPERATOR = 299,        /* BOOLEAN_OPERATOR  */
-    TYPE = 300                     /* TYPE  */
+    ASSIGN = 286,                  /* ASSIGN  */
+    ARITHMETIC_OPERATOR = 287,     /* ARITHMETIC_OPERATOR  */
+    RELATIONAL_OPERATOR = 288,     /* RELATIONAL_OPERATOR  */
+    SEMICOLON = 289,               /* SEMICOLON  */
+    NOT = 290,                     /* NOT  */
+    COMMA = 291,                   /* COMMA  */
+    LSB = 292,                     /* LSB  */
+    RSB = 293,                     /* RSB  */
+    LCB = 294,                     /* LCB  */
+    RCB = 295,                     /* RCB  */
+    RPB = 296,                     /* RPB  */
+    LPB = 297,                     /* LPB  */
+    BOOLEAN_OPERATOR = 298,        /* BOOLEAN_OPERATOR  */
+    TYPE = 299                     /* TYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -133,27 +132,26 @@ extern int yydebug;
 #define FOR 283
 #define WHILE 284
 #define RETURN 285
-#define PRINT 286
-#define ASSIGN 287
-#define ARITHMETIC_OPERATOR 288
-#define RELATIONAL_OPERATOR 289
-#define SEMICOLON 290
-#define NOT 291
-#define COMMA 292
-#define LSB 293
-#define RSB 294
-#define LCB 295
-#define RCB 296
-#define RPB 297
-#define LPB 298
-#define BOOLEAN_OPERATOR 299
-#define TYPE 300
+#define ASSIGN 286
+#define ARITHMETIC_OPERATOR 287
+#define RELATIONAL_OPERATOR 288
+#define SEMICOLON 289
+#define NOT 290
+#define COMMA 291
+#define LSB 292
+#define RSB 293
+#define LCB 294
+#define RCB 295
+#define RPB 296
+#define LPB 297
+#define BOOLEAN_OPERATOR 298
+#define TYPE 299
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 106 "parser.y"
+#line 115 "parser.y"
 
       
 int int_value;
@@ -162,7 +160,7 @@ float float_value;
 
 
 
-#line 166 "y.tab.h"
+#line 164 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

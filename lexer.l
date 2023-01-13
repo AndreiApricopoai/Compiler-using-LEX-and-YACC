@@ -29,7 +29,6 @@
 
 
 "EVAL"                                      {return EVAL;}  /*functie care evalueaza expresii aritmetice EX : EVAL(a+2);*/
-"Print"                                     {return PRINT;} /*functie care printeaza pe ecran numere sau siruri de caractere Print("hello")*/
 "TypeOf"                                    {return TYPEOF;} /*functie care afiseaza pe ecran tipul de date al expresiei din paranteza TypeOf(a+2)*/
 "TYPE"                                      {return TYPE;}
 
