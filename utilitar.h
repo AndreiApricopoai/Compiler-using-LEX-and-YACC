@@ -827,7 +827,13 @@ int getDataType(struct symbol_table symbols[100], int table_index, char *identif
             if (strcmp(symbols[i].data_type, "int") == 0)
                 return 1; // tipul e int
             else if (strcmp(symbols[i].data_type, "float") == 0)
-                return 2; // tipul e float
+                return 2;
+            else if (strcmp(symbols[i].data_type, "char") == 0)
+                return 3; // tipul e float
+            else if (strcmp(symbols[i].data_type, "string") == 0)
+                return 4; // tipul e float
+            else if (strcmp(symbols[i].data_type, "bool") == 0)
+                return 5; // tipul e float
             else
                 return -10; // datatype nu e int sau float
         }
@@ -841,14 +847,26 @@ int getIntValue(struct symbol_table symbols[100], int table_index, char *identif
     strcpy(aux, identifier_eval);
 
     char identifier[100];
-    if (strchr(identifier, '[') != NULL)
+    int int_arr_index;
+
+    if (strchr(identifier_eval, '[') != 0)
     {
         char *p = strtok(aux, "[]");
+        bzero(identifier, sizeof(identifier));
         strcpy(identifier, p);
 
-        strtok(NULL, "[]");
+        for (int i = 0; i < strlen(identifier_eval); i++)
+        {
+            if (isdigit(identifier_eval[i]))
+            {
+                int_arr_index = identifier_eval[i] - '0';
+            }
+        }
 
-        int int_arr_index = atoi(p);
+        strtok(NULL, "[]");
+        // printf("INDEX: %s\n", p);
+
+        // printf("%i\n",int_arr_index);
 
         if (existsVariable("MAIN", identifier, symbols, table_index) == 1)
         {
@@ -865,6 +883,7 @@ int getIntValue(struct symbol_table symbols[100], int table_index, char *identif
             {
                 if (symbols[i].are_valoare == 1)
                 {
+                    // printf("VAL: %i\n",symbols[i].int_array_values[int_arr_index]);
                     return symbols[i].int_array_values[int_arr_index];
                 }
                 else
@@ -907,7 +926,7 @@ float getFloatValue(struct symbol_table symbols[100], int table_index, char *ide
     strcpy(aux, identifier_eval);
 
     char identifier[100];
-    if (strchr(identifier, '[') != NULL)
+    if (strchr(identifier_eval, '[') != NULL)
     {
         char *p = strtok(aux, "[]");
         strcpy(identifier, p);
@@ -1133,7 +1152,9 @@ char *infixToPostfix(char *exp)
     }
 
     while (!isEmpty(stack))
+    {
         exp[++k] = pop(stack);
+    }
 
     exp[++k] = '\0';
 
@@ -1195,8 +1216,8 @@ int evaluate(struct Node *root)
     int left = evaluate(root->left);
     int right = evaluate(root->right);
 
-    printf("LEFT: %i\n", left);
-    printf("RIGHT: %i\n", right);
+    // printf("LEFT: %i\n", left);
+    // printf("RIGHT: %i\n", right);
 
     switch (root->info)
     {
@@ -1225,6 +1246,24 @@ void removeQuotes(char *str)
     for (i = 0; i < len; i++)
     {
         if (str[i] == '"')
+        {
+            for (j = i; j < len; j++)
+            {
+                str[j] = str[j + 1];
+            }
+            len--;
+            i--;
+        }
+    }
+}
+
+void removeBracket(char *str)
+{
+    int i, j;
+    int len = strlen(str);
+    for (i = 0; i < len; i++)
+    {
+        if (str[i] == '[' || str[i] == ']')
         {
             for (j = i; j < len; j++)
             {

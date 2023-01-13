@@ -171,9 +171,10 @@ bool r;
 bool d = true;
 bool e = false;
 string ss;
+string s;
 float f = 20.5;
 float g;
-const int var = 20;
+const int l = 20;
 int my_arr[20];
 bool bs[100] = {true,false,true,true};
 float fsir[] = {1.2,2.5,3.0};
@@ -181,17 +182,21 @@ int integers[] = {1,2,3,4,5};
 TYPE Student student;
 
 
-
 student-->mem1 = 12;
 student-->met1(a,c);
 
-TypeOf();
+TypeOf("fsir[1] + fsir[1]");
 
 int c;
 
 int k = 2;
 
-EVAL("func1(func2(y))+(9-k*x)+5");
+int var = 5;
+
+int j[] = {3,5}; 
+
+
+EVAL("(5+j[0])*x+5/5+func1(func2(y))");
 
 
 x = b + 2;

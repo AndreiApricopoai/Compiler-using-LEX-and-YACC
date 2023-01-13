@@ -1,17 +1,14 @@
 #include <stdio.h>
-#include <string.h>
-#include <regex.h>
 #include <stdlib.h>
+#include <string.h>
+
 
 int main()
 {
-    char input[] = "te Amo";
+    char test[] = "var[5]";
 
-    char test[] = " me to";
+    char *p=strtok(test,"]");
 
-    bzero(input,sizeof(input));
-
-    strcat(input, test);
-
-    printf("%s\n",input);
+    printf("%d\n",atoi(p[strlen(p)-1]));
+    return 0;
 }

@@ -468,7 +468,167 @@ statement : assignment SEMICOLON
           | function_call SEMICOLON
           | IDENTIFIER ACCES function_call SEMICOLON
           | control_statement
-          | TYPEOF LPB typeof_arguments RPB SEMICOLON 
+          | TYPEOF LPB STRING_VALUE RPB SEMICOLON
+            {
+                  removeQuotes($3);
+                  char identifier1[100];
+                  char identifier2[100];
+                  char sign[100];
+
+                  char output[100];
+                  bzero(output,sizeof(output));
+
+                  sscanf($3,"%s %s %s",identifier1,sign,identifier2);
+                  //printf("%s\n",identifier1);
+
+                  if(strchr(identifier1,'[')!=0)
+                  {
+                        char aux[100];
+                        strcpy(aux, identifier1);
+
+                        char *p=strtok(aux,"[");
+
+                        strcpy(identifier1, p);
+
+                  }
+
+                  if(strchr(identifier2,'[')!=0)
+                  {
+                        char aux[100];
+                        strcpy(aux, identifier2);
+
+                        char *p=strtok(aux,"[");
+
+                        strcpy(identifier2, p);
+                  }
+
+                  if(existsVariable("MAIN",identifier1,symbols,index_symbols_table)==1)
+                  {
+                        if(getDataType(symbols,index_symbols_table,identifier1)==1)
+                        {
+                              strcat(output,"int ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==2)
+                        {
+                              strcat(output,"float ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==3)
+                        {
+                              strcat(output,"char ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==4)
+                        {
+                              strcat(output,"string ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==5)
+                        {
+                              strcat(output,"bool ");
+                              strcat(output,sign);
+                        }
+                  }
+                  else if(existsVariable("GLOBAL",identifier1,symbols,index_symbols_table)==1)
+                  {
+                        if(getDataType(symbols,index_symbols_table,identifier1)==1)
+                        {
+                              strcat(output,"int ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==2)
+                        {
+                              strcat(output,"float ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==3)
+                        {
+                              strcat(output,"char ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==4)
+                        {
+                              strcat(output,"string ");
+                              strcat(output,sign);
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier1)==5)
+                        {
+                              strcat(output,"bool ");
+                              strcat(output,sign);
+                        }
+                  }
+                  else
+                  {
+                        yyerror("TypeOf: Variabila nu exista!");
+                  }
+
+                  if(existsVariable("MAIN",identifier2,symbols,index_symbols_table)==1)
+                  {
+                        if(getDataType(symbols,index_symbols_table,identifier2)== 1)
+                        {
+                              strcat(output," int");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==2)
+                        {
+                              strcat(output," float");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==3)
+                        {
+                              strcat(output," char");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==4)
+                        {
+                              strcat(output," string");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==5)
+                        {
+                              strcat(output," bool");
+                        }
+                  }
+                  else if(existsVariable("GLOBAL",identifier2,symbols,index_symbols_table)==1)
+                  {
+                        if(getDataType(symbols,index_symbols_table,identifier2)== 1)
+                        {
+                              strcat(output," int");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==2)
+                        {
+                              strcat(output," float");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==3)
+                        {
+                              strcat(output," char");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==4)
+                        {
+                              strcat(output," string");
+                        }
+                        else if(getDataType(symbols,index_symbols_table,identifier2)==5)
+                        {
+                              strcat(output," bool");
+                        }
+                  }
+                  else
+                  {
+                        yyerror("TypeOf: Variabila nu exista!");
+                  }
+
+                  bzero(identifier1,sizeof(identifier1));
+                  bzero(identifier2,sizeof(identifier2));
+
+                  sscanf(output,"%s %s %s",identifier1, sign, identifier2);
+
+                  if(strcmp(identifier1,identifier2)==0)
+                  {
+                        printf("TypeOf(%s)\n",output);
+                  }
+                  else
+                  {
+                        yyerror("TypeOf -> Parametrii diferiti!");
+                  }
+
+            }
           | EVAL LPB STRING_VALUE RPB SEMICOLON 
             {
             if(strcmp(SYMBOL_SCOPE,"MAIN")==0)
@@ -479,16 +639,22 @@ statement : assignment SEMICOLON
                   char simbol[100];
                   char varName[100];
                   char arrayName[100];
+                  char arrayValue[100];
+                  char expression[100];
 
                   strcpy(aux,$3);
+                  strcpy(expression,$3);
 
-                  //printf("%s\n",aux);
+                  
                   replace_function_calls(aux);
 
+                  //printf("%s\n",aux);
 
                   int isNumber=0;
                   int isVar=0;
                   bzero(finalString,sizeof(finalString));
+                  bzero(arrayName,sizeof(arrayName));
+                  bzero(arrayValue,sizeof(arrayValue));
                   for(int i=0;i<strlen(aux);i++)
                   {
                         if(aux[i]=='+' || aux[i]=='-' || aux[i]=='*' ||
@@ -536,22 +702,53 @@ statement : assignment SEMICOLON
                               sprintf(simbol,"%c",aux[i]);
                               strcat(finalString, simbol);
                            }
+                           else if(aux[i]=='[')
+                           {
+                              isVar=1;
+                              isNumber=1;
+                              sprintf(simbol,"%c",aux[i]);
+                              strcat(arrayValue,simbol);
+                           }
+                           else if(aux[i]== ']')
+                           {
+                              sprintf(simbol,"%c",aux[i]);
+                              strcat(arrayValue,simbol);
 
-                           //printf("%s - > %i\n",finalString,i);
+                              if(existsVariable("MAIN",varName,symbols,index_symbols_table)==1)
+                              {
+                                    strcat(varName,arrayValue);
+
+                                    int stringNumber;
+                                    stringNumber=getIntValue(symbols,index_symbols_table,varName);
+
+                                    char strNumber[100];
+
+                                    sprintf(strNumber,"%i",stringNumber);
+
+                                    strcat(finalString, strNumber);
+                                    bzero(varName, sizeof(varName));
+                              }
+                           }
+                           else
+                           {
+                              sprintf(simbol,"%c",aux[i]);
+                              strcat(arrayValue,simbol);
+                           }
+
+                        //    printf("%s - > %i\n",finalString,i);
+                        //    printf("%s - > %i\n",arrayValue,i);
                            
                   }
 
                   //printf("%s\n",finalString);
-                  
+                  //printf("VAL:%i\n",atoi(finalString));
                   infixToPostfix(finalString);
 
-                  printf("%s\n",finalString);
+                  //printf("%s\n",finalString);
                   struct Node *root = buildTree(finalString);
 
-                  //andrei+2-f(c)
-                  //5+2-0
 
-                  printf("Eval result: %i\n", evaluate(root));
+                  printf("(Eval)Rezultatul expresiei %s este : %i\n",expression, evaluate(root));
                   
             }
             }
@@ -575,10 +772,6 @@ expression : value
            | LPB expression RPB
            | expression ARITHMETIC_OPERATOR expression
            ;
-
-
-typeof_arguments : ;
-
 
 types_block : type
       | types_block type

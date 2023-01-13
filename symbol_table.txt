@@ -78,25 +78,31 @@
 
 [39] TIP : string | ID : ss | VALUE : {N/A} | SCOPE : MAIN
 
-[40] TIP : float | ID : f | VALUE : 20.50 | SCOPE : MAIN
+[40] TIP : string | ID : s | VALUE : {N/A} | SCOPE : MAIN
 
-[41] TIP : float | ID : g | VALUE : {N/A} | SCOPE : MAIN
+[41] TIP : float | ID : f | VALUE : 20.50 | SCOPE : MAIN
 
-[42] TIP : const int | ID : var | VALUE : 20 | SCOPE : MAIN
+[42] TIP : float | ID : g | VALUE : {N/A} | SCOPE : MAIN
 
-[43] TIP : array int | ID : my_arr | VALUE : {N/A} | SCOPE : MAIN
+[43] TIP : const int | ID : l | VALUE : 20 | SCOPE : MAIN
 
-[44] TIP : array bool | ID : bs | VALUE : {1,0,1,1,} | SCOPE MAIN
+[44] TIP : array int | ID : my_arr | VALUE : {N/A} | SCOPE : MAIN
 
-[45] TIP : array float | ID : fsir | VALUE : {1.00,2.00,3.00,} | SCOPE MAIN
+[45] TIP : array bool | ID : bs | VALUE : {1,0,1,1,} | SCOPE MAIN
 
-[46] TIP : array int | ID : integers | VALUE : {1,2,3,4,5,} | SCOPE MAIN
+[46] TIP : array float | ID : fsir | VALUE : {1.00,2.00,3.00,} | SCOPE MAIN
 
-[47] TIP : Student | ID : student | SCOPE : MAIN
+[47] TIP : array int | ID : integers | VALUE : {1,2,3,4,5,} | SCOPE MAIN
 
-[48] TIP : int | ID : c | VALUE : {N/A} | SCOPE : MAIN
+[48] TIP : Student | ID : student | SCOPE : MAIN
 
-[49] TIP : int | ID : k | VALUE : 2 | SCOPE : MAIN
+[49] TIP : int | ID : c | VALUE : {N/A} | SCOPE : MAIN
 
-[50] TIP : int | ID : n | VALUE : 10 | SCOPE : MAIN
+[50] TIP : int | ID : k | VALUE : 2 | SCOPE : MAIN
+
+[51] TIP : int | ID : var | VALUE : 5 | SCOPE : MAIN
+
+[52] TIP : array int | ID : j | VALUE : {3,5,} | SCOPE MAIN
+
+[53] TIP : int | ID : n | VALUE : 10 | SCOPE : MAIN
 
