@@ -30,7 +30,7 @@
 
 [15] TIP : array float | ID : floatsir | VALUE : {1.00,2.00,3.00,} | SCOPE GLOBAL
 
-[16] TIP : array int | ID : integers | VALUE : {1,2,3,4,5,} | SCOPE GLOBAL
+[16] TIP : array int | ID : integers | VALUE : {1,2,5,4,5,} | SCOPE GLOBAL
 
 [17] TIP : char | ID : test1 | VALUE : 'a' | SCOPE : GLOBAL
 
