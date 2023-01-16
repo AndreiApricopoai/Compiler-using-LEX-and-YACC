@@ -1,0 +1,108 @@
+[0] TIP : int | ID : x | VALUE : 10 | SCOPE : GLOBAL
+
+[1] TIP : int | ID : a | VALUE : {N/A} | SCOPE : GLOBAL
+
+[2] TIP : int | ID : b | VALUE : {N/A} | SCOPE : GLOBAL
+
+[3] TIP : char | ID : c | VALUE : {N/A} | SCOPE : GLOBAL
+
+[4] TIP : int | ID : num | VALUE : {N/A} | SCOPE : GLOBAL
+
+[5] TIP : bool | ID : r | VALUE : {N/A} | SCOPE : GLOBAL
+
+[6] TIP : bool | ID : ddd | VALUE : 1 | SCOPE : GLOBAL
+
+[7] TIP : bool | ID : eee | VALUE : 0 | SCOPE : GLOBAL
+
+[8] TIP : array string | ID : aaaaaa | VALUE : {"1111","2222","3333",} | SCOPE GLOBAL
+
+[9] TIP : string | ID : nume | VALUE : "andrei" | SCOPE : GLOBAL
+
+[10] TIP : string | ID : ss | VALUE : {N/A} | SCOPE : GLOBAL
+
+[11] TIP : float | ID : fval | VALUE : 20.50 | SCOPE : GLOBAL
+
+[12] TIP : float | ID : fgol | VALUE : {N/A} | SCOPE : GLOBAL
+
+[13] TIP : array int | ID : my_arr | VALUE : {N/A} | SCOPE : GLOBAL
+
+[14] TIP : array bool | ID : bools | VALUE : {1,0,1,1,} | SCOPE GLOBAL
+
+[15] TIP : array float | ID : floatsir | VALUE : {1.00,2.00,3.00,} | SCOPE GLOBAL
+
+[16] TIP : array int | ID : integers | VALUE : {1,2,5,4,5,} | SCOPE GLOBAL
+
+[17] TIP : char | ID : test1 | VALUE : 'a' | SCOPE : GLOBAL
+
+[18] TIP : char | ID : test2 | VALUE : '2' | SCOPE : GLOBAL
+
+[19] TIP : Student | ID : student | SCOPE : GLOBAL
+
+[20] TIP : int | ID : a | VALUE : 2 | SCOPE : FUNCTIONS function 2
+
+[21] TIP : int | ID : a | VALUE : {N/A} | SCOPE : FUNCTIONS function 3
+
+[22] TIP : int | ID : mem1 | VALUE : {N/A} | SCOPE : TYPES type0 members
+
+[23] TIP : int | ID : mem2 | VALUE : 10 | SCOPE : TYPES type0 members
+
+[24] TIP : int | ID : a | VALUE : {N/A} | SCOPE : TYPES type0 methods method 2
+
+[25] TIP : bool | ID : val | VALUE : {N/A} | SCOPE : TYPES type0 methods method 3
+
+[26] TIP : int | ID : re | VALUE : {N/A} | SCOPE : TYPES type0 methods method 3
+
+[27] TIP : int | ID : mem1 | VALUE : {N/A} | SCOPE : TYPES type1 members
+
+[28] TIP : int | ID : mem2 | VALUE : 10 | SCOPE : TYPES type1 members
+
+[29] TIP : bool | ID : val | VALUE : {N/A} | SCOPE : TYPES type1 methods method 1
+
+[30] TIP : int | ID : as | VALUE : {N/A} | SCOPE : TYPES type1 methods method 1
+
+[31] TIP : int | ID : a | VALUE : {N/A} | SCOPE : MAIN
+
+[32] TIP : int | ID : x | VALUE : 3 | SCOPE : MAIN
+
+[33] TIP : char | ID : b | VALUE : {N/A} | SCOPE : MAIN
+
+[34] TIP : bool | ID : r | VALUE : {N/A} | SCOPE : MAIN
+
+[35] TIP : bool | ID : d | VALUE : 1 | SCOPE : MAIN
+
+[36] TIP : bool | ID : e | VALUE : 0 | SCOPE : MAIN
+
+[37] TIP : string | ID : ss | VALUE : {N/A} | SCOPE : MAIN
+
+[38] TIP : string | ID : s | VALUE : {N/A} | SCOPE : MAIN
+
+[39] TIP : float | ID : f | VALUE : 20.50 | SCOPE : MAIN
+
+[40] TIP : float | ID : g | VALUE : {N/A} | SCOPE : MAIN
+
+[41] TIP : const int | ID : l | VALUE : 20 | SCOPE : MAIN
+
+[42] TIP : array int | ID : my_arr | VALUE : {N/A} | SCOPE : MAIN
+
+[43] TIP : array bool | ID : bs | VALUE : {1,0,1,1,} | SCOPE MAIN
+
+[44] TIP : array float | ID : fsir | VALUE : {1.00,2.00,3.00,} | SCOPE MAIN
+
+[45] TIP : array int | ID : integers | VALUE : {4,2,3,4,5,} | SCOPE MAIN
+
+[46] TIP : Student | ID : student | SCOPE : MAIN
+
+[47] TIP : int | ID : c | VALUE : {N/A} | SCOPE : MAIN
+
+[48] TIP : int | ID : k | VALUE : 2 | SCOPE : MAIN
+
+[49] TIP : int | ID : var | VALUE : 5 | SCOPE : MAIN
+
+[50] TIP : array int | ID : j | VALUE : {3,5,} | SCOPE MAIN
+
+[51] TIP : array int | ID : rev | VALUE : {0,1,2,3,4,5,} | SCOPE MAIN
+
+[52] TIP : int | ID : n | VALUE : 10 | SCOPE : MAIN
+
+[53] TIP : int | ID : A | VALUE : {N/A} | SCOPE : MAIN
+
